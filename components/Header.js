@@ -26,7 +26,6 @@ const Header = ({ isShow }) => {
           viewport={{ once: true }}
         >
           <img
-            <img
             className="w-40 h-auto cursor-pointer"
             src="/logo.png"
             alt="New Logo"
