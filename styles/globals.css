@@ -41,31 +41,35 @@ body {
 
 .search-input {
   outline: none;
-  background-color: #0d4f4f; /* Darker Teal */
+  background-color: #008080; /* Dark teal */
+  color: white;
   border: none;
-  border-radius: 6px; /* Make it square */
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-right-radius: 0; /* Ensures right side is square */
+  border-bottom-right-radius: 0; /* Ensures right side is square */
   height: 3rem;
   width: 17rem;
   text-indent: 20px;
   font-size: 15px;
-  color: white; /* Make text readable */
 }
 
 .search-btn {
   position: relative;
-  background-color: rgb(235, 235, 235);
-  border: 1px solid rgb(200, 200, 200);
-  border-left: none;
-  border-top-right-radius: 50px;
-  border-bottom-right-radius: 50px;
+  background-color: #008080; /* Same as input */
+  border: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
   width: 3rem;
   height: 3rem;
-  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .search-btn:hover {
-  background-color: rgb(220, 220, 220);
-  cursor: pointer;
+  background-color: #006666; /* Slightly darker teal on hover */
 }
 
 .search-btn::before {
@@ -79,7 +83,7 @@ body {
 }
 
 .search-btn > i {
-  color: rgb(180, 180, 180);
+  color: white; /* Change search icon color */
 }
 
 .nav-right {
