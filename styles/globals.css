@@ -188,10 +188,12 @@ main {
 }
 
 .left {
-  flex: 0.35;
+  flex: 0.25; /* Reduce width to allow more space for central player */
   height: 90vh;
   overflow-y: hidden;
   overflow-x: hidden;
+  margin-left: -40px; /* Moves the entire section more to the left */
+  padding-left: 10px; /* Ensure spacing inside remains good */
 }
 
 .left:hover {
@@ -204,7 +206,7 @@ main {
   border-bottom: 1px solid rgb(200, 200, 200);
   padding-bottom: 1rem;
   margin-top: 1rem;
-  margin-left: 8rem;
+  margin-left: 4rem; /* Adjusted for more left positioning */
   margin-right: 1rem;
   width: 90%;
 }
