@@ -201,14 +201,18 @@ main {
 }
 
 .btns {
-  display: flex;
+display: flex;
   flex-direction: column;
   border-bottom: 1px solid rgb(200, 200, 200);
   padding-bottom: 1rem;
   margin-top: 1rem;
-  margin-left: 4rem; /* Adjusted for more left positioning */
-  margin-right: 1rem;
-  width: 90%;
+  margin-left: 4rem; /* Adjusted left margin */
+  margin-right: 2rem; /* Add extra spacing on the right */
+  width: auto; /* Ensures it fits content properly */
+  max-width: 80%; /* Prevents cutoff */
+  overflow: hidden; /* Makes sure text wraps */
+  text-overflow: ellipsis; /* Adds "..." if text is too long */
+  white-space: nowrap; /* Optional: Forces text into a single line */
 }
 
 .btns > a {
@@ -408,8 +412,10 @@ main {
 }
 
 .post-info {
+  position: relative; /* Ensure positioning works */
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .post-info > .user:hover {
@@ -443,7 +449,9 @@ main {
 }
 
 .post-info > button {
-  margin-top: 1rem;
+  position: absolute;
+  right: 10px; /* Moves it more to the right */
+  top: 1rem;
   background-color: transparent;
   border: 1px solid rgb(254, 44, 85);
   color: rgb(254, 44, 85);
