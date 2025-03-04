@@ -1,51 +1,59 @@
 import React, { useEffect, useState } from "react";
-import { onSnapshot, query, collection, orderBy } from "firebase/firestore";
-
-import { firestore } from "../firebase/firebase";
+import { listAll, ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase/firebase";
 import Post from "./Post";
-
 import Skeleton from "./Skeleton/Skeleton";
 
 const RightHandSide = () => {
-  const [posts, setPosts] = useState([]);
+  const [videos, setVideos] = useState([]);
   const [isShow, setIsShow] = useState(false);
 
-  useEffect(
-    () =>
-      onSnapshot(
-        query(collection(firestore, "posts"), orderBy("timestamp", "desc")),
-        (snapshot) => {
-          setPosts(snapshot.docs);
-        }
-      ),
-    [firestore]
-  );
-
   useEffect(() => {
-    setTimeout(() => {
-      if (posts) {
-        setIsShow(true);
-      } else return;
-    }, 3000);
-  }, [posts]);
+    const fetchVideos = async () => {
+      const videosRef = ref(storage, "videos/"); // Change to your storage folder
+      const result = await listAll(videosRef);
+      
+      const videoURLs = await Promise.all(
+        result.items.map(async (item) => {
+          const url = await getDownloadURL(item);
+          return {
+            id: item.name, // Use file name as ID
+            video: url,
+            username: "Unknown User", // Dummy data since Firestore isn't used
+            profileImage: "https://via.placeholder.com/50", // Placeholder profile pic
+            caption: "No caption available", // Placeholder caption
+            topic: "General", // Default topic
+            timestamp: new Date(), // Default timestamp
+            userId: "unknown", // Dummy user ID
+            songName: "Original Sound", // Placeholder song name
+          };
+        })
+      );
+
+      setVideos(videoURLs);
+      setIsShow(true);
+    };
+
+    fetchVideos();
+  }, []);
 
   return (
     <div className="right mt-4">
       {isShow ? (
         <>
-          {posts.map((post) => (
+          {videos.map((video) => (
             <Post
-              key={post.id}
-              caption={post.data().caption}
-              company={post.data().company}
-              video={post.data().image}
-              profileImage={post.data().profileImage}
-              topic={post.data().topic}
-              timestamp={post.data().timestamp}
-              username={post.data().username}
-              userId={post.data().userId}
-              songName={post.data().songName}
-              id={post.id}
+              key={video.id}
+              caption={video.caption}
+              company="Unknown"
+              video={video.video} // Storage URL
+              profileImage={video.profileImage}
+              topic={video.topic}
+              timestamp={video.timestamp}
+              username={video.username}
+              userId={video.userId}
+              songName={video.songName}
+              id={video.id}
             />
           ))}
         </>
