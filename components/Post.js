@@ -201,10 +201,10 @@ const Post = ({
                 <p className="capitalize font-medium text-xs text-gray-500 hidden md:block">
                   {company}
                 </p>
-                <div className="flex ml-56">
+                <div className="absolute right-0 pr-4">
                   <button
                     type="button"
-                    className="inline-block px-4 py-1.5 border border-pink-500 text-pink-500 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                    className="px-4 py-1.5 border border-pink-500 text-pink-500 font-medium text-xs uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
                   >
                     Follow
                   </button>
