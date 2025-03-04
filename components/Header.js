@@ -26,10 +26,10 @@ const Header = ({ isShow }) => {
           viewport={{ once: true }}
         >
           <img
-            className="logo"
-            onClick={() => router.push("/")}
-            src="https://i.postimg.cc/W1PwRj4j/logo.png"
-            alt="Tiktok"
+            <img
+            className="w-40 h-auto cursor-pointer"
+            src="/logo.png"
+            alt="New Logo"
           />
         </motion.div>
 
