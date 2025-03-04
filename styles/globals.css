@@ -43,11 +43,12 @@ body {
   outline: none;
   background-color: #008080; /* Dark teal */
   color: white;
-  border: none;
+  border: 2px solid #004d4d; /* Darker teal border */
+  border-right: none; /* Ensures no double border with the button */
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
-  border-top-right-radius: 0; /* Ensures right side is square */
-  border-bottom-right-radius: 0; /* Ensures right side is square */
+  border-top-right-radius: 0; /* Square edge */
+  border-bottom-right-radius: 0; /* Square edge */
   height: 3rem;
   width: 17rem;
   text-indent: 20px;
@@ -57,7 +58,8 @@ body {
 .search-btn {
   position: relative;
   background-color: #008080; /* Same as input */
-  border: none;
+  border: 2px solid #004d4d; /* Same border color as input */
+  border-left: none; /* Prevents double border between input & button */
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
   width: 3rem;
