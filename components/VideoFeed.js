@@ -29,7 +29,7 @@ const VideoFeed = () => {
   }, [currentIndex]);
 
   const handleScroll = (event) => {
-    if (isScrolling) return; // ✅ Prevent multiple scrolls at once
+    if (isScrolling) return;
 
     setIsScrolling(true);
 
@@ -39,7 +39,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 800); // ✅ Delay prevents rapid scrolling
+    setTimeout(() => setIsScrolling(false), 600); // ✅ Prevents multiple scrolls at once
   };
 
   const nextVideo = () => {
@@ -57,22 +57,22 @@ const VideoFeed = () => {
   return (
     <div
       className="relative w-full h-screen overflow-hidden bg-black flex justify-center items-center"
-      onWheel={handleScroll} // ✅ Enable smooth scrolling
+      onWheel={handleScroll} // ✅ Enables smooth scrolling
     >
-      <AnimatePresence>
+      <AnimatePresence mode="popLayout">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "100%" }} // ✅ Start below
-            animate={{ y: "0%" }} // ✅ Slide up into place
-            exit={{ y: "-100%" }} // ✅ Slide out up
-            transition={{ type: "spring", stiffness: 100, damping: 15 }} // ✅ Smooth effect
+            initial={{ y: "100%" }} // ✅ Video starts below
+            animate={{ y: "0%" }} // ✅ Moves up smoothly
+            exit={{ y: "-100%" }} // ✅ Slides up
+            transition={{ type: "spring", stiffness: 100, damping: 20 }} // ✅ Natural feel
             className="absolute w-full h-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-auto h-full max-w-none object-cover" // ✅ FIXES ZOOMED VIDEO
+              className="w-full h-full object-cover" // ✅ Fix video zoom & fit issue
               loop
               autoPlay
               muted
