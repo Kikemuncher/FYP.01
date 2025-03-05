@@ -69,23 +69,23 @@ const VideoFeed = () => {
 
   return (
     <div
-      className="relative w-full h-screen flex justify-center items-center bg-transparent"
+      className="relative w-full h-screen flex justify-center items-center bg-transparent pointer-events-auto"
       onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "-100%" }} // ✅ FIXED: Video now enters from the top
-            animate={{ y: "0%" }}
-            exit={{ y: "100%" }} // ✅ FIXED: Video exits towards the bottom
+            initial={{ y: currentIndex === 0 ? "100%" : "0%" }} // ✅ FIXED: New video enters from below
+            animate={{ y: "0%" }} // ✅ FIXED: Active video stays in place
+            exit={{ y: currentIndex === 0 ? "-100%" : "100%" }} // ✅ FIXED: Past videos exit from the top, new ones from the bottom
             transition={{ type: "spring", stiffness: 80, damping: 25 }}
-            className="absolute w-full h-full flex justify-center items-center"
+            className="absolute w-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-auto h-[90vh] max-w-[480px] object-cover rounded-lg shadow-lg bg-transparent" // ✅ FIXED: No black background, correctly sized video
+              className="w-auto h-[90vh] max-w-[480px] object-cover rounded-lg shadow-lg pointer-events-auto" // ✅ FIXED: Removed overlay
               loop
               autoPlay
               muted
@@ -94,7 +94,7 @@ const VideoFeed = () => {
             />
             {!playing && (
               <div
-                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
+                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16 pointer-events-auto"
                 onClick={togglePlayPause}
               >
                 ▶
