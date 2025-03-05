@@ -118,28 +118,28 @@ const Post = ({
           </div>
         </div>
 
-        {/* ✅ Full-screen vertical video format */}
-        <div className="relative flex justify-center items-center w-full h-screen">
+        {/* ✅ Full-screen vertical video format (no cropping or white bars) */}
+        <div className="relative flex justify-center items-center w-full">
           <video
             ref={videoRef}
             src={video}
-            className="w-full h-full object-cover" // ✅ Makes video full-screen without white bars
+            className="w-full h-screen object-contain aspect-[9/16]" // ✅ Keeps correct TikTok format
             loop
             playsInline
             onClick={togglePlayPause} // ✅ Click anywhere to play/pause
           />
 
-          {/* ✅ Play button now properly centered */}
+          {/* ✅ Play button now perfectly centered */}
           {!playing && (
             <div
-              className="absolute inset-0 flex items-center justify-center text-white text-5xl bg-black/40 rounded-full w-16 h-16"
+              className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full w-16 h-16 text-white text-5xl"
               onClick={togglePlayPause} // ✅ Clicking the play icon also plays the video
             >
               ▶
             </div>
           )}
 
-          {/* ✅ Volume button is now positioned correctly */}
+          {/* ✅ Volume button now in correct position */}
           <div className="absolute bottom-6 right-6">
             {isVideoMuted ? (
               <button onClick={() => setIsVideoMuted(false)}>
