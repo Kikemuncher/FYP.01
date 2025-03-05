@@ -3,7 +3,8 @@ import fetchVideos from "../utils/fetchVideos"; // Import the function
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef([]);
+  const videoRefs = useRef([]); // Store video elements
+  const playingIndex = useRef(null); // Track currently playing video index
 
   useEffect(() => {
     async function loadVideos() {
@@ -19,14 +20,16 @@ const VideoFeed = () => {
         entries.forEach((entry) => {
           const video = entry.target;
           if (entry.isIntersecting) {
-            video.muted = true; // Required for autoplay
-            video.play();
+            // Only play if it was playing before scrolling out
+            if (playingIndex.current === video.dataset.index) {
+              video.play();
+            }
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0.5 } // Play when 50% of the video is visible
+      { threshold: 0.5 } // Play when 50% visible
     );
 
     videoRefs.current.forEach((video) => {
@@ -40,13 +43,23 @@ const VideoFeed = () => {
     };
   }, [videos]);
 
-  // Click to play/pause
+  // Click anywhere on the video to toggle play/pause
   const togglePlayPause = (index) => {
     const video = videoRefs.current[index];
+
     if (video.paused) {
+      // Pause all other videos
+      videoRefs.current.forEach((vid, i) => {
+        if (vid && i !== index) {
+          vid.pause();
+        }
+      });
+
       video.play();
+      playingIndex.current = index; // Store the playing video's index
     } else {
       video.pause();
+      playingIndex.current = null;
     }
   };
 
@@ -59,9 +72,9 @@ const VideoFeed = () => {
               ref={(el) => (videoRefs.current[index] = el)}
               className="w-full h-auto rounded-lg"
               loop
-              muted // Ensures autoplay works
-              playsInline // Prevents fullscreen on mobile tap
-              onClick={() => togglePlayPause(index)} // Click anywhere to play/pause
+              playsInline
+              data-index={index} // Store index for tracking play state
+              onClick={() => togglePlayPause(index)} // Tap anywhere to play/pause
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
