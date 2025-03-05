@@ -39,7 +39,6 @@ const Post = ({
   const [playing, setPlaying] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const videoRef = useRef(null);
-
   const [wasPlaying, setWasPlaying] = useState(false); // ✅ Track play state before scrolling out
 
   // ✅ Click anywhere on the video to toggle play/pause
@@ -119,18 +118,18 @@ const Post = ({
           </div>
         </div>
 
-        {/* ✅ Click anywhere to toggle play/pause */}
-        <div className="relative flex justify-center items-center w-full">
+        {/* ✅ Full-screen vertical video format */}
+        <div className="relative flex justify-center items-center w-full h-screen">
           <video
             ref={videoRef}
             src={video}
-            className="lg:w-[600px] h-[300px] md:h-[400px] lg:h-[528px] w-[200px] rounded-2xl cursor-pointer bg-gray-100"
+            className="w-full h-full object-cover" // ✅ Makes video full-screen without white bars
             loop
             playsInline
             onClick={togglePlayPause} // ✅ Click anywhere to play/pause
           />
 
-          {/* ✅ Play button now properly centered and smaller */}
+          {/* ✅ Play button now properly centered */}
           {!playing && (
             <div
               className="absolute inset-0 flex items-center justify-center text-white text-5xl bg-black/40 rounded-full w-16 h-16"
