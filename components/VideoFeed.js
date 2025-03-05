@@ -24,6 +24,7 @@ const VideoFeed = () => {
     videoRefs.current.forEach((video, index) => {
       if (index !== currentIndex && video) {
         video.pause();
+        video.currentTime = 0; // ✅ Reset video when switching
       }
     });
   }, [currentIndex]);
@@ -39,7 +40,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 600); // ✅ Prevents multiple scrolls at once
+    setTimeout(() => setIsScrolling(false), 800); // ✅ Prevents skipping multiple videos
   };
 
   const nextVideo = () => {
@@ -56,8 +57,8 @@ const VideoFeed = () => {
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden bg-black flex justify-center items-center"
-      onWheel={handleScroll} // ✅ Enables smooth scrolling
+      className="relative w-full h-[calc(100vh-60px)] overflow-hidden bg-black flex justify-center items-center"
+      onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
       <AnimatePresence mode="popLayout">
         {videos.length > 0 && (
@@ -66,13 +67,13 @@ const VideoFeed = () => {
             initial={{ y: "100%" }} // ✅ Video starts below
             animate={{ y: "0%" }} // ✅ Moves up smoothly
             exit={{ y: "-100%" }} // ✅ Slides up
-            transition={{ type: "spring", stiffness: 100, damping: 20 }} // ✅ Natural feel
+            transition={{ type: "spring", stiffness: 100, damping: 20 }} // ✅ Smooth natural motion
             className="absolute w-full h-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-full h-full object-cover" // ✅ Fix video zoom & fit issue
+              className="max-w-[90vw] max-h-[80vh] object-contain rounded-lg" // ✅ FIXES CROPPING & OVERSIZED ISSUE
               loop
               autoPlay
               muted
