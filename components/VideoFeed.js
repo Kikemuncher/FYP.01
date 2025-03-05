@@ -3,7 +3,7 @@ import fetchVideos from "../utils/fetchVideos";
 import { useSwipeable } from "react-swipeable";
 import { HiArrowUp, HiArrowDown } from "react-icons/hi";
 
-const FYP = () => {
+const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
@@ -17,12 +17,10 @@ const FYP = () => {
   }, []);
 
   useEffect(() => {
-    // Autoplay the current video
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
 
-    // Pause all other videos
     videoRefs.current.forEach((video, index) => {
       if (index !== currentIndex && video) {
         video.pause();
@@ -42,7 +40,6 @@ const FYP = () => {
     }
   };
 
-  // Swipe controls
   const handlers = useSwipeable({
     onSwipedUp: handleNextVideo,
     onSwipedDown: handlePrevVideo,
@@ -67,7 +64,7 @@ const FYP = () => {
             playsInline
           />
 
-          {/* Navigation Buttons */}
+          {/* Navigation Arrows */}
           <div className="absolute right-5 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
             <button
               onClick={handlePrevVideo}
@@ -95,4 +92,4 @@ const FYP = () => {
   );
 };
 
-export default FYP;
+export default VideoFeed;
