@@ -72,20 +72,20 @@ const VideoFeed = () => {
       className="relative w-full h-[calc(100vh-60px)] overflow-hidden flex justify-center items-center bg-gray-900"
       onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "100%" }} // ✅ Start from below
-            animate={{ y: "0%" }} // ✅ Slide up into place
-            exit={{ y: "-100%" }} // ✅ Moves up (fixes last video issue)
-            transition={{ type: "spring", stiffness: 90, damping: 25 }} // ✅ Slower transition
+            initial={{ y: "100%" }} // ✅ Start below
+            animate={{ y: "0%" }} // ✅ Moves up smoothly
+            exit={{ y: "-100%" }} // ✅ Fix last video coming from bottom
+            transition={{ type: "spring", stiffness: 80, damping: 25 }} // ✅ Adjusted speed
             className="absolute w-full h-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="max-w-[90vw] max-h-[80vh] object-cover rounded-lg shadow-lg cursor-pointer" // ✅ Fixes size issue, no more black screen
+              className="w-full h-full object-contain rounded-lg max-w-[480px] max-h-[85vh]" // ✅ Fixes full-screen blocking issue
               loop
               autoPlay
               muted
