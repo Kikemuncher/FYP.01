@@ -41,7 +41,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 500); // ✅ Reduced scroll delay for better control
+    setTimeout(() => setIsScrolling(false), 700); // ✅ Ensures smooth one scroll per video
   };
 
   const nextVideo = () => {
@@ -68,47 +68,50 @@ const VideoFeed = () => {
   };
 
   return (
-    <div
-      className="relative w-full h-screen flex justify-center items-center bg-transparent pointer-events-auto"
-      onWheel={handleScroll} // ✅ Ensures scrolling works smoothly
-    >
-      <AnimatePresence mode="wait">
-        {videos.length > 0 && (
-          <motion.div
-            key={currentIndex}
-            initial={{ y: "100%" }} // ✅ Next video slides up from bottom
-            animate={{ y: "0%" }} // ✅ Active video stays in place
-            exit={{ y: "-100%" }} // ✅ Past videos exit from top
-            transition={{ type: "spring", stiffness: 80, damping: 20 }}
-            className="absolute w-full flex justify-center items-center pointer-events-auto"
-          >
-            <video
-              ref={(el) => (videoRefs.current[currentIndex] = el)}
-              src={videos[currentIndex]}
-              className="w-auto h-[80vh] max-w-[500px] object-contain rounded-lg shadow-lg pointer-events-auto" // ✅ Fixed overlay issues
-              loop
-              autoPlay
-              muted
-              playsInline
-              onClick={togglePlayPause}
-            />
-            {!playing && (
-              <div
-                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16 pointer-events-auto"
-                onClick={togglePlayPause}
-              >
-                ▶
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="relative w-full h-screen flex flex-col items-center bg-black overflow-hidden" onWheel={handleScroll}>
+      
+      {/* ✅ FYP Header */}
+      <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
+        <div className="flex space-x-6">
+          <p className="cursor-pointer border-b-2 border-white pb-1">For You</p>
+          <p className="cursor-pointer opacity-50">Following</p>
+          <p className="cursor-pointer opacity-50">Explore</p>
+        </div>
+      </div>
 
-      {/* ✅ Sidebar UI is now fully visible */}
-      <div className="absolute left-0 top-0 w-[60px] h-full bg-gray-800 text-white flex flex-col justify-center items-center">
-        <p className="mb-4 cursor-pointer">FYP</p>
-        <p className="mb-4 cursor-pointer">Following</p>
-        <p className="cursor-pointer">Explore</p>
+      {/* ✅ Video Feed */}
+      <div className="relative w-full h-full flex items-center justify-center">
+        <AnimatePresence mode="popLayout">
+          {videos.length > 0 && (
+            <motion.div
+              key={currentIndex}
+              initial={{ y: "100%" }} // ✅ Next video comes from below
+              animate={{ y: "0%" }}
+              exit={{ y: "-100%" }} // ✅ Previous video exits from top
+              transition={{ type: "spring", stiffness: 80, damping: 20 }}
+              className="absolute w-full h-full flex justify-center items-center"
+            >
+              <video
+                ref={(el) => (videoRefs.current[currentIndex] = el)}
+                src={videos[currentIndex]}
+                className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg"
+                loop
+                autoPlay
+                muted
+                playsInline
+                onClick={togglePlayPause}
+              />
+              {!playing && (
+                <div
+                  className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
+                  onClick={togglePlayPause}
+                >
+                  ▶
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
