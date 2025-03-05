@@ -69,23 +69,23 @@ const VideoFeed = () => {
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden flex justify-center items-center bg-black"
-      onWheel={handleScroll}
+      className="relative w-full h-screen flex justify-center items-center bg-black"
+      onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
       <AnimatePresence mode="wait">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "-100%" }} // ✅ FIXED: Video now enters from the top
-            animate={{ y: "0%" }}
-            exit={{ y: "100%" }} // ✅ FIXED: Video now exits towards the bottom
+            initial={{ opacity: 0, y: "100%" }}
+            animate={{ opacity: 1, y: "0%" }}
+            exit={{ opacity: 0, y: "-100%" }}
             transition={{ type: "spring", stiffness: 80, damping: 25 }}
             className="absolute w-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-auto h-[85vh] object-contain rounded-lg shadow-lg max-w-[500px]" // ✅ FIXED: No more full-screen edges issue
+              className="w-auto h-[85vh] max-w-[400px] object-contain rounded-lg shadow-lg" // ✅ FIXED: Prevents video from taking full screen
               loop
               autoPlay
               muted
