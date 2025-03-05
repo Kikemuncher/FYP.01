@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
-
 import { BsFillKeyboardFill } from "react-icons/bs";
 import { auth } from "../firebase/firebase";
 
@@ -17,8 +16,9 @@ const Header = ({ isShow }) => {
   };
 
   return (
-    <header className="fixed top-0 w-full bg-white shadow-md z-50 flex items-center justify-between px-4 py-2 h-[50px]">
-      <nav className="flex items-center justify-between w-full">
+    <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50">
+      <nav className="flex items-center justify-between px-4 py-2 h-[60px] max-w-screen-xl mx-auto">
+        
         {/* ✅ Logo (Left Side) */}
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           <img
@@ -43,7 +43,7 @@ const Header = ({ isShow }) => {
           />
         </motion.div>
 
-        {/* ✅ Right Side (Upload & Profile) */}
+        {/* ✅ Right Side (Upload, Profile, Login) */}
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="flex items-center space-x-4">
           {isShow && user && (
             <button
