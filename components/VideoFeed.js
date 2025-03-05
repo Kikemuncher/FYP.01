@@ -7,6 +7,7 @@ const VideoFeed = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [playing, setPlaying] = useState(true); // ✅ Track play/pause state
 
   useEffect(() => {
     async function loadVideos() {
@@ -40,7 +41,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 800); // ✅ Prevents skipping multiple videos
+    setTimeout(() => setIsScrolling(false), 900); // ✅ Slower transition delay
   };
 
   const nextVideo = () => {
@@ -55,30 +56,51 @@ const VideoFeed = () => {
     }
   };
 
+  const togglePlayPause = () => {
+    const video = videoRefs.current[currentIndex];
+    if (video.paused) {
+      video.play();
+      setPlaying(true);
+    } else {
+      video.pause();
+      setPlaying(false);
+    }
+  };
+
   return (
     <div
-      className="relative w-full h-[calc(100vh-60px)] overflow-hidden bg-black flex justify-center items-center"
+      className="relative w-full h-[calc(100vh-60px)] overflow-hidden flex justify-center items-center bg-gray-900"
       onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
       <AnimatePresence mode="popLayout">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "100%" }} // ✅ Video starts below
-            animate={{ y: "0%" }} // ✅ Moves up smoothly
-            exit={{ y: "-100%" }} // ✅ Slides up
-            transition={{ type: "spring", stiffness: 100, damping: 20 }} // ✅ Smooth natural motion
+            initial={{ y: "100%" }} // ✅ Start from below
+            animate={{ y: "0%" }} // ✅ Slide up into place
+            exit={{ y: "-100%" }} // ✅ Moves up (fixes last video issue)
+            transition={{ type: "spring", stiffness: 90, damping: 25 }} // ✅ Slower transition
             className="absolute w-full h-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="max-w-[90vw] max-h-[80vh] object-contain rounded-lg" // ✅ FIXES CROPPING & OVERSIZED ISSUE
+              className="max-w-[90vw] max-h-[80vh] object-cover rounded-lg shadow-lg cursor-pointer" // ✅ Fixes size issue, no more black screen
               loop
               autoPlay
               muted
               playsInline
+              onClick={togglePlayPause} // ✅ Click anywhere to play/pause
             />
+            {/* ✅ Play/Pause Button (Shows when Paused) */}
+            {!playing && (
+              <div
+                className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
+                onClick={togglePlayPause}
+              >
+                ▶
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
