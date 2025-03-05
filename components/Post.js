@@ -39,12 +39,8 @@ const Post = ({
   const [playing, setPlaying] = useState(false);
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const videoRef = useRef(null);
-  const [likes, setLikes] = useState([]);
-  const [hasLikes, setHasLikes] = useState(false);
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([]);
-  const [isComOpen, setIsComOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const [wasPlaying, setWasPlaying] = useState(false); // ✅ Track play state before scrolling out
 
   // ✅ Click anywhere on the video to toggle play/pause
   const togglePlayPause = () => {
@@ -65,12 +61,22 @@ const Post = ({
     }
   }, [isVideoMuted]);
 
-  // ✅ Auto-pause video when out of view
+  // ✅ Auto-pause when scrolling out & auto-resume if it was playing
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
+          if (entry.isIntersecting) {
+            if (wasPlaying) {
+              videoRef.current.play(); // ✅ Resume if it was playing before
+              setPlaying(true);
+            }
+          } else {
+            if (!videoRef.current.paused) {
+              setWasPlaying(true); // ✅ Remember that it was playing
+            } else {
+              setWasPlaying(false);
+            }
             videoRef.current.pause();
             setPlaying(false);
           }
@@ -86,7 +92,7 @@ const Post = ({
     return () => {
       if (videoRef.current) observer.unobserve(videoRef.current);
     };
-  }, []);
+  }, [wasPlaying]);
 
   return (
     <>
@@ -124,17 +130,17 @@ const Post = ({
             onClick={togglePlayPause} // ✅ Click anywhere to play/pause
           />
 
-          {/* ✅ Play icon - Now properly centered */}
+          {/* ✅ Play button now properly centered and smaller */}
           {!playing && (
             <div
-              className="absolute inset-0 flex items-center justify-center text-white text-6xl bg-black/50 rounded-full p-6 cursor-pointer"
+              className="absolute inset-0 flex items-center justify-center text-white text-5xl bg-black/40 rounded-full w-16 h-16"
               onClick={togglePlayPause} // ✅ Clicking the play icon also plays the video
             >
               ▶
             </div>
           )}
 
-          {/* ✅ Volume button - Now in the correct position */}
+          {/* ✅ Volume button is now positioned correctly */}
           <div className="absolute bottom-6 right-6">
             {isVideoMuted ? (
               <button onClick={() => setIsVideoMuted(false)}>
@@ -147,13 +153,6 @@ const Post = ({
             )}
           </div>
         </div>
-
-        {/* ✅ Comments Section */}
-        {isComOpen && (
-          <div className="items-center pr-36 pt-4">
-            <Comments comment={comment} setComment={setComment} comments={comments} />
-          </div>
-        )}
       </motion.div>
     </>
   );
