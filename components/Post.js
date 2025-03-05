@@ -18,13 +18,11 @@ const Post = ({ video, index }) => {
   };
 
   useEffect(() => {
-    // ✅ Ensure the first video plays on page load
+    // ✅ Force the first video to play on page load
     if (index === 0 && videoRef.current) {
       const firstVideo = videoRef.current;
-      firstVideo.muted = true; // ✅ Required by browsers for autoplay
-      setTimeout(() => {
-        firstVideo.play().catch((error) => console.error("Autoplay blocked:", error));
-      }, 100); // ✅ Small delay ensures autoplay works
+      firstVideo.muted = true; // ✅ Some browsers require muted autoplay
+      firstVideo.play().catch((error) => console.error("Autoplay blocked:", error));
     }
   }, [index]);
 
@@ -36,14 +34,12 @@ const Post = ({ video, index }) => {
         className="w-full h-full object-contain aspect-[9/16]"
         loop
         playsInline
-        autoPlay={index === 0} // ✅ Force autoplay on the first video
         onClick={togglePlayPause} // ✅ Click anywhere to play/pause
       />
 
-      {/* ✅ Centered Play Button */}
       {!playing && (
         <div
-          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
+          className="absolute inset-0 flex items-center justify-center text-white text-5xl bg-black/40 rounded-full w-16 h-16"
           onClick={togglePlayPause}
         >
           ▶
