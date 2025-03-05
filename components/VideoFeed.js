@@ -3,7 +3,7 @@ import fetchVideos from "../utils/fetchVideos"; // Import the function
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef([]); // Store refs for all videos
+  const videoRefs = useRef([]);
 
   useEffect(() => {
     async function loadVideos() {
@@ -19,7 +19,7 @@ const VideoFeed = () => {
         entries.forEach((entry) => {
           const video = entry.target;
           if (entry.isIntersecting) {
-            video.muted = true; // Ensure autoplay works
+            video.muted = true; // Required for autoplay
             video.play();
           } else {
             video.pause();
@@ -61,7 +61,7 @@ const VideoFeed = () => {
               loop
               muted // Ensures autoplay works
               playsInline // Prevents fullscreen on mobile tap
-              onClick={() => togglePlayPause(index)} // Tap anywhere to toggle
+              onClick={() => togglePlayPause(index)} // Click anywhere to play/pause
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
