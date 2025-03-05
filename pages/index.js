@@ -3,6 +3,7 @@ import Head from "next/head";
 import Header from "../components/Header";
 import LeftHandSide from "../components/LeftHandSide";
 import RightHandSide from "../components/RightHandSide";
+import VideoFeed from "../components/VideoFeed"; // ✅ Import VideoFeed
 
 export default function Home() {
   return (
@@ -16,8 +17,12 @@ export default function Home() {
         />
       </Head>
       <Header isShow={true} />
-      <main>
+      
+      <main className="flex">
         <LeftHandSide />
+        <div className="flex-grow">
+          <VideoFeed />  {/* ✅ Now VideoFeed is actually used */}
+        </div>
         <RightHandSide />
       </main>
     </div>
