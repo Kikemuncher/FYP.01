@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const yScroll = useMotionValue(0); // ✅ Directly ties scroll to video movement
-  const yPosition = useTransform(yScroll, (value) => -value); // ✅ Smooth video transitions
+  const scrollY = useMotionValue(0); // ✅ Directly ties scroll movement to video position
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const isAnimating = useRef(false); // ✅ Prevents multiple actions at once
 
   useEffect(() => {
     async function loadVideos() {
@@ -21,28 +21,37 @@ const VideoFeed = () => {
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
-
-    videoRefs.current.forEach((video, index) => {
-      if (index !== currentIndex && video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    });
   }, [currentIndex]);
 
-  const handleScroll = (event) => {
-    event.preventDefault();
-    const deltaY = event.deltaY;
+  const handleWheel = (event) => {
+    if (isAnimating.current) return; // ✅ Stops multiple actions at once
 
-    if (deltaY > 0 && currentIndex < videos.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    } else if (deltaY < 0 && currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
+    let deltaY = event.deltaY;
+    let direction = deltaY > 0 ? 1 : -1;
+
+    if (Math.abs(deltaY) > 30) {
+      // ✅ Detect if the scroll is intentional (prevents accidental movements)
+      isAnimating.current = true;
+
+      let newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < videos.length) {
+        animate(scrollY, newIndex * -window.innerHeight, {
+          type: "spring",
+          stiffness: 120,
+          damping: 20,
+          onComplete: () => {
+            setCurrentIndex(newIndex);
+            isAnimating.current = false;
+          },
+        });
+      } else {
+        isAnimating.current = false;
+      }
     }
   };
 
   return (
-    <div className="relative w-full h-screen flex flex-col items-center bg-black overflow-hidden" onWheel={handleScroll}>
+    <div className="relative w-full h-screen overflow-hidden" onWheel={handleWheel}>
       
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
@@ -53,10 +62,10 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed (Scroll is now tied directly to videos) */}
+      {/* ✅ Video Feed (Scroll directly moves the videos smoothly) */}
       <motion.div
         className="absolute w-full h-full flex flex-col items-center justify-center"
-        style={{ y: yPosition }} // ✅ Scroll directly moves the video position
+        style={{ y: scrollY }}
       >
         {videos.map((videoUrl, index) => (
           <motion.div
