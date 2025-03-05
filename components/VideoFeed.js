@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [playing, setPlaying] = useState(true);
-  const scrollLock = useRef(false); // ✅ Prevents multiple skips
+  const yScroll = useMotionValue(0); // ✅ Directly ties scroll to video movement
+  const yPosition = useTransform(yScroll, (value) => -value); // ✅ Smooth video transitions
 
   useEffect(() => {
     async function loadVideos() {
@@ -32,40 +31,13 @@ const VideoFeed = () => {
   }, [currentIndex]);
 
   const handleScroll = (event) => {
-    if (scrollLock.current) return; // ✅ Prevent multiple skips
-    scrollLock.current = true; // ✅ Lock scrolling
+    event.preventDefault();
+    const deltaY = event.deltaY;
 
-    if (event.deltaY > 0) {
-      nextVideo();
-    } else if (event.deltaY < 0) {
-      prevVideo();
-    }
-
-    setTimeout(() => {
-      scrollLock.current = false; // ✅ Unlock after animation finishes
-    }, 800); // ✅ Adjust this value if needed
-  };
-
-  const nextVideo = () => {
-    if (currentIndex < videos.length - 1) {
+    if (deltaY > 0 && currentIndex < videos.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
-  };
-
-  const prevVideo = () => {
-    if (currentIndex > 0) {
+    } else if (deltaY < 0 && currentIndex > 0) {
       setCurrentIndex((prevIndex) => prevIndex - 1);
-    }
-  };
-
-  const togglePlayPause = () => {
-    const video = videoRefs.current[currentIndex];
-    if (video.paused) {
-      video.play();
-      setPlaying(true);
-    } else {
-      video.pause();
-      setPlaying(false);
     }
   };
 
@@ -81,40 +53,31 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed */}
-      <div className="relative w-full h-full flex items-center justify-center">
-        <AnimatePresence mode="popLayout">
-          {videos.length > 0 && (
-            <motion.div
-              key={currentIndex}
-              initial={{ y: "100%" }} // ✅ Next video comes from below
-              animate={{ y: "0%" }}
-              exit={{ y: "-100%" }} // ✅ Previous video exits from top
-              transition={{ type: "spring", stiffness: 80, damping: 20 }}
-              className="absolute w-full h-full flex justify-center items-center"
-            >
-              <video
-                ref={(el) => (videoRefs.current[currentIndex] = el)}
-                src={videos[currentIndex]}
-                className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg"
-                loop
-                autoPlay
-                muted
-                playsInline
-                onClick={togglePlayPause}
-              />
-              {!playing && (
-                <div
-                  className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
-                  onClick={togglePlayPause}
-                >
-                  ▶
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* ✅ Video Feed (Scroll is now tied directly to videos) */}
+      <motion.div
+        className="absolute w-full h-full flex flex-col items-center justify-center"
+        style={{ y: yPosition }} // ✅ Scroll directly moves the video position
+      >
+        {videos.map((videoUrl, index) => (
+          <motion.div
+            key={index}
+            className="absolute w-full h-full flex justify-center items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: index === currentIndex ? 1 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <video
+              ref={(el) => (videoRefs.current[index] = el)}
+              src={videoUrl}
+              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg"
+              loop
+              autoPlay
+              muted
+              playsInline
+            />
+          </motion.div>
+        ))}
+      </motion.div>
     </div>
   );
 };
