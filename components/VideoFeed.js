@@ -7,7 +7,7 @@ const VideoFeed = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [playing, setPlaying] = useState(true); // ✅ Track play/pause state
+  const [playing, setPlaying] = useState(true);
 
   useEffect(() => {
     async function loadVideos() {
@@ -25,7 +25,7 @@ const VideoFeed = () => {
     videoRefs.current.forEach((video, index) => {
       if (index !== currentIndex && video) {
         video.pause();
-        video.currentTime = 0; // ✅ Reset video when switching
+        video.currentTime = 0;
       }
     });
   }, [currentIndex]);
@@ -41,7 +41,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 900); // ✅ Slower transition delay
+    setTimeout(() => setIsScrolling(false), 900);
   };
 
   const nextVideo = () => {
@@ -69,30 +69,29 @@ const VideoFeed = () => {
 
   return (
     <div
-      className="relative w-full h-[calc(100vh-60px)] overflow-hidden flex justify-center items-center bg-gray-900"
-      onWheel={handleScroll} // ✅ Enable smooth scrolling
+      className="relative w-full h-screen overflow-hidden flex justify-center items-center bg-black"
+      onWheel={handleScroll}
     >
       <AnimatePresence mode="wait">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: "100%" }} // ✅ Start below
-            animate={{ y: "0%" }} // ✅ Moves up smoothly
-            exit={{ y: "-100%" }} // ✅ Fix last video coming from bottom
-            transition={{ type: "spring", stiffness: 80, damping: 25 }} // ✅ Adjusted speed
-            className="absolute w-full h-full flex justify-center items-center"
+            initial={{ y: "-100%" }} // ✅ FIXED: Video now enters from the top
+            animate={{ y: "0%" }}
+            exit={{ y: "100%" }} // ✅ FIXED: Video now exits towards the bottom
+            transition={{ type: "spring", stiffness: 80, damping: 25 }}
+            className="absolute w-full flex justify-center items-center"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-full h-full object-contain rounded-lg max-w-[480px] max-h-[85vh]" // ✅ Fixes full-screen blocking issue
+              className="w-auto h-[85vh] object-contain rounded-lg shadow-lg max-w-[500px]" // ✅ FIXED: No more full-screen edges issue
               loop
               autoPlay
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click anywhere to play/pause
+              onClick={togglePlayPause}
             />
-            {/* ✅ Play/Pause Button (Shows when Paused) */}
             {!playing && (
               <div
                 className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
