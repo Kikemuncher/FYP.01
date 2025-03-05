@@ -8,6 +8,7 @@ const VideoFeed = () => {
   const videoRefs = useRef([]);
   const [isScrolling, setIsScrolling] = useState(false);
   const [playing, setPlaying] = useState(true);
+  const scrollLock = useRef(false); // ✅ Prevents multiple skips
 
   useEffect(() => {
     async function loadVideos() {
@@ -31,9 +32,8 @@ const VideoFeed = () => {
   }, [currentIndex]);
 
   const handleScroll = (event) => {
-    if (isScrolling) return;
-
-    setIsScrolling(true);
+    if (scrollLock.current) return; // ✅ Prevent multiple skips
+    scrollLock.current = true; // ✅ Lock scrolling
 
     if (event.deltaY > 0) {
       nextVideo();
@@ -41,7 +41,9 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 700); // ✅ Ensures smooth one scroll per video
+    setTimeout(() => {
+      scrollLock.current = false; // ✅ Unlock after animation finishes
+    }, 800); // ✅ Adjust this value if needed
   };
 
   const nextVideo = () => {
