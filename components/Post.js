@@ -60,22 +60,17 @@ const Post = ({
     }
   }, [isVideoMuted]);
 
-  // ✅ Auto-pause when scrolling out & auto-resume if it was playing
+  // ✅ Auto-play video when scrolling into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            if (wasPlaying) {
-              videoRef.current.play(); // ✅ Resume if it was playing before
+            if (!playing) {
+              videoRef.current.play(); // ✅ Auto-plays when visible
               setPlaying(true);
             }
           } else {
-            if (!videoRef.current.paused) {
-              setWasPlaying(true); // ✅ Remember that it was playing
-            } else {
-              setWasPlaying(false);
-            }
             videoRef.current.pause();
             setPlaying(false);
           }
@@ -91,7 +86,7 @@ const Post = ({
     return () => {
       if (videoRef.current) observer.unobserve(videoRef.current);
     };
-  }, [wasPlaying]);
+  }, []);
 
   return (
     <>
@@ -119,20 +114,20 @@ const Post = ({
         </div>
 
         {/* ✅ Full-screen vertical video format (no cropping or white bars) */}
-        <div className="relative flex justify-center items-center w-full">
+        <div className="relative flex justify-center items-center w-full h-screen">
           <video
             ref={videoRef}
             src={video}
-            className="w-full h-screen object-contain aspect-[9/16]" // ✅ Keeps correct TikTok format
+            className="w-full h-full object-contain aspect-[9/16]" // ✅ Keeps correct TikTok format
             loop
             playsInline
             onClick={togglePlayPause} // ✅ Click anywhere to play/pause
           />
 
-          {/* ✅ Play button now perfectly centered */}
+          {/* ✅ Play button - Now perfectly centered */}
           {!playing && (
             <div
-              className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full w-16 h-16 text-white text-5xl"
+              className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center bg-black/50 text-white text-5xl rounded-full w-16 h-16"
               onClick={togglePlayPause} // ✅ Clicking the play icon also plays the video
             >
               ▶
