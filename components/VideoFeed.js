@@ -1,15 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useDragControls } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const y = useMotionValue(0); // ✅ Scroll position tied to video movement
-  const smoothY = useSpring(y, { stiffness: 100, damping: 15 }); // ✅ Smooth transition effect
-  const containerRef = useRef(null);
-  const videoHeight = useRef(0);
+  const y = useMotionValue(0); // ✅ Directly controls video movement
+  const dragControls = useDragControls(); // ✅ Enables full swipe control
+  const videoRefs = useRef([]);
 
   useEffect(() => {
     async function loadVideos() {
@@ -20,44 +18,32 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
-    if (containerRef.current) {
-      videoHeight.current = containerRef.current.clientHeight;
-    }
-  }, [videos]);
-
-  useEffect(() => {
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
-
-    videoRefs.current.forEach((video, index) => {
-      if (index !== currentIndex && video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    });
   }, [currentIndex]);
 
-  const handleScroll = (event) => {
-    y.set(y.get() + event.deltaY * 0.8); // ✅ Moves based on scroll intensity
+  const handleDragEnd = (event, info) => {
+    const offset = info.offset.y;
+    const velocity = info.velocity.y;
 
-    let videoIndex = Math.round(y.get() / -videoHeight.current);
-
-    if (videoIndex !== currentIndex) {
-      if (videoIndex < 0) videoIndex = 0;
-      if (videoIndex >= videos.length) videoIndex = videos.length - 1;
-
-      setCurrentIndex(videoIndex);
-      y.set(videoIndex * -videoHeight.current); // ✅ Locks to the nearest video
+    // ✅ Swipe Down (Go to Previous Video)
+    if (offset > 100 || velocity > 500) {
+      if (currentIndex > 0) {
+        setCurrentIndex((prevIndex) => prevIndex - 1);
+      }
+    }
+    // ✅ Swipe Up (Go to Next Video)
+    else if (offset < -100 || velocity < -500) {
+      if (currentIndex < videos.length - 1) {
+        setCurrentIndex((prevIndex) => prevIndex + 1);
+      }
     }
   };
 
   return (
-    <div
-      className="relative w-full h-screen overflow-hidden"
-      onWheel={handleScroll}
-      ref={containerRef}
-    >
+    <div className="relative w-full h-screen overflow-hidden bg-black">
+      
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
         <div className="flex space-x-6">
@@ -67,18 +53,20 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed - Scroll is fully tied to video movement */}
-      <motion.div
-        className="absolute w-full h-full flex flex-col items-center justify-center"
-        style={{ y: smoothY }} // ✅ Smooth movement tied to scroll
-      >
+      {/* ✅ Video Stack (Each Video Moves Up/Down on Scroll) */}
+      <div className="relative w-full h-full">
         {videos.map((videoUrl, index) => (
           <motion.div
             key={index}
             className="absolute w-full h-full flex justify-center items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: index === currentIndex ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+            style={{
+              y: y,
+              zIndex: videos.length - index, // ✅ Keeps videos stacked properly
+            }}
+            drag="y"
+            dragControls={dragControls}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            onDragEnd={handleDragEnd} // ✅ Detects swipe direction
           >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
@@ -91,7 +79,7 @@ const VideoFeed = () => {
             />
           </motion.div>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };
