@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import fetchVideos from "../utils/fetchVideos"; // Import function to fetch video URLs
+import fetchVideos from "../utils/fetchVideos"; // Fetch video URLs
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
@@ -19,14 +19,12 @@ const VideoFeed = () => {
         entries.forEach((entry) => {
           const video = entry.target;
           if (entry.isIntersecting) {
-            console.log("🔵 Video is visible:", video.src); // Debugging log
             if (video.dataset.wasPlaying === "true") {
               video.play();
             }
           } else {
-            console.log("🟠 Video out of view:", video.src); // Debugging log
             if (!video.paused) {
-              video.dataset.wasPlaying = "true"; // Remember state
+              video.dataset.wasPlaying = "true";
             } else {
               video.dataset.wasPlaying = "false";
             }
@@ -34,7 +32,7 @@ const VideoFeed = () => {
           }
         });
       },
-      { threshold: 0.75 }
+      { threshold: 0.75 } // Video must be 75% visible to play
     );
 
     videoRefs.current.forEach((video) => {
@@ -46,21 +44,29 @@ const VideoFeed = () => {
     };
   }, [videos]);
 
-  const togglePlayPause = (index) => {
+  // Function to play/pause when clicking anywhere on video
+  const togglePlayPause = (index, event) => {
+    event.preventDefault(); // Stop redirection
+    event.stopPropagation(); // Stop bubbling
+
     const video = videoRefs.current[index];
 
     if (!video) return;
 
-    console.log("🟢 Clicked video:", video.src); // Debugging log
-
     if (video.paused) {
+      // Pause all other videos
+      videoRefs.current.forEach((vid, i) => {
+        if (vid && i !== index) {
+          vid.pause();
+          vid.dataset.wasPlaying = "false";
+        }
+      });
+
       video.play();
       video.dataset.wasPlaying = "true";
-      console.log("▶ Video playing");
     } else {
       video.pause();
       video.dataset.wasPlaying = "false";
-      console.log("⏸ Video paused");
     }
   };
 
@@ -68,7 +74,7 @@ const VideoFeed = () => {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {videos.length > 0 ? (
         videos.map((videoUrl, index) => (
-          <div key={index} className="video-container">
+          <div key={index} className="video-container" onClick={(e) => togglePlayPause(index, e)}>
             <video
               ref={(el) => {
                 if (el) videoRefs.current[index] = el;
@@ -79,7 +85,6 @@ const VideoFeed = () => {
               muted={false}
               data-index={index}
               data-was-playing="false"
-              onClick={() => togglePlayPause(index)} // Tap anywhere to play/pause
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
