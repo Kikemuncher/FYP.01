@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
-  const scrollY = useMotionValue(0); // ✅ Directly ties scroll movement to video position
   const [currentIndex, setCurrentIndex] = useState(0);
-  const isAnimating = useRef(false); // ✅ Prevents multiple actions at once
+  const y = useMotionValue(0); // ✅ Scroll position tied to video movement
+  const smoothY = useSpring(y, { stiffness: 100, damping: 15 }); // ✅ Smooth transition effect
+  const containerRef = useRef(null);
+  const videoHeight = useRef(0);
 
   useEffect(() => {
     async function loadVideos() {
@@ -18,41 +20,44 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
+    if (containerRef.current) {
+      videoHeight.current = containerRef.current.clientHeight;
+    }
+  }, [videos]);
+
+  useEffect(() => {
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
+
+    videoRefs.current.forEach((video, index) => {
+      if (index !== currentIndex && video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
   }, [currentIndex]);
 
-  const handleWheel = (event) => {
-    if (isAnimating.current) return; // ✅ Stops multiple actions at once
+  const handleScroll = (event) => {
+    y.set(y.get() + event.deltaY * 0.8); // ✅ Moves based on scroll intensity
 
-    let deltaY = event.deltaY;
-    let direction = deltaY > 0 ? 1 : -1;
+    let videoIndex = Math.round(y.get() / -videoHeight.current);
 
-    if (Math.abs(deltaY) > 30) {
-      // ✅ Detect if the scroll is intentional (prevents accidental movements)
-      isAnimating.current = true;
+    if (videoIndex !== currentIndex) {
+      if (videoIndex < 0) videoIndex = 0;
+      if (videoIndex >= videos.length) videoIndex = videos.length - 1;
 
-      let newIndex = currentIndex + direction;
-      if (newIndex >= 0 && newIndex < videos.length) {
-        animate(scrollY, newIndex * -window.innerHeight, {
-          type: "spring",
-          stiffness: 120,
-          damping: 20,
-          onComplete: () => {
-            setCurrentIndex(newIndex);
-            isAnimating.current = false;
-          },
-        });
-      } else {
-        isAnimating.current = false;
-      }
+      setCurrentIndex(videoIndex);
+      y.set(videoIndex * -videoHeight.current); // ✅ Locks to the nearest video
     }
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden" onWheel={handleWheel}>
-      
+    <div
+      className="relative w-full h-screen overflow-hidden"
+      onWheel={handleScroll}
+      ref={containerRef}
+    >
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
         <div className="flex space-x-6">
@@ -62,10 +67,10 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed (Scroll directly moves the videos smoothly) */}
+      {/* ✅ Video Feed - Scroll is fully tied to video movement */}
       <motion.div
         className="absolute w-full h-full flex flex-col items-center justify-center"
-        style={{ y: scrollY }}
+        style={{ y: smoothY }} // ✅ Smooth movement tied to scroll
       >
         {videos.map((videoUrl, index) => (
           <motion.div
