@@ -19,16 +19,16 @@ const VideoFeed = () => {
         entries.forEach((entry) => {
           const video = entry.target;
           if (entry.isIntersecting) {
+            video.muted = true; // Ensure autoplay works
             video.play();
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0.5 } // Play video when at least 50% visible
+      { threshold: 0.5 } // Play when 50% of the video is visible
     );
 
-    // Observe each video
     videoRefs.current.forEach((video) => {
       if (video) observer.observe(video);
     });
@@ -38,9 +38,9 @@ const VideoFeed = () => {
         if (video) observer.unobserve(video);
       });
     };
-  }, [videos]); // Re-run when videos are loaded
+  }, [videos]);
 
-  // Handle manual play/pause when clicking the video
+  // Click to play/pause
   const togglePlayPause = (index) => {
     const video = videoRefs.current[index];
     if (video.paused) {
@@ -56,11 +56,12 @@ const VideoFeed = () => {
         videos.map((videoUrl, index) => (
           <div key={index} className="video-container">
             <video
-              ref={(el) => (videoRefs.current[index] = el)} // Store ref
+              ref={(el) => (videoRefs.current[index] = el)}
               className="w-full h-auto rounded-lg"
               loop
-              muted={false} // Enable sound if required
-              onClick={() => togglePlayPause(index)} // Click to play/pause
+              muted // Ensures autoplay works
+              playsInline // Prevents fullscreen on mobile tap
+              onClick={() => togglePlayPause(index)} // Tap anywhere to toggle
             >
               <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
