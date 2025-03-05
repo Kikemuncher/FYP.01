@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue, useDragControls } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const y = useMotionValue(0); // ✅ Directly controls video movement
-  const isScrolling = useRef(false); // ✅ Prevents multiple skips
+  const dragControls = useDragControls();
+  const y = useMotionValue(0); // ✅ Controls smooth scrolling effect
 
   useEffect(() => {
     async function loadVideos() {
@@ -21,79 +21,33 @@ const VideoFeed = () => {
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
-
-    videoRefs.current.forEach((video, index) => {
-      if (index !== currentIndex && video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    });
   }, [currentIndex]);
 
-  // ✅ Smooth scrolling with scroll wheel
-  const handleScroll = (event) => {
-    if (isScrolling.current) return;
-    isScrolling.current = true;
+  const handleDragEnd = (event, info) => {
+    const offset = info.offset.y;
+    const velocity = info.velocity.y;
 
-    if (event.deltaY > 0) {
-      nextVideo();
-    } else if (event.deltaY < 0) {
-      prevVideo();
-    }
-
-    setTimeout(() => (isScrolling.current = false), 800);
-  };
-
-  // ✅ Smooth scrolling with Arrow Keys
-  const handleKeyDown = (event) => {
-    if (event.key === "ArrowDown") {
-      nextVideo();
-    } else if (event.key === "ArrowUp") {
-      prevVideo();
-    }
-  };
-
-  // ✅ Move to next video
-  const nextVideo = () => {
-    if (currentIndex < videos.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-      animate(y, -window.innerHeight * (currentIndex + 1), {
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-      });
-    }
-  };
-
-  // ✅ Move to previous video
-  const prevVideo = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-      animate(y, -window.innerHeight * (currentIndex - 1), {
-        type: "spring",
-        stiffness: 100,
-        damping: 20,
-      });
-    }
-  };
-
-  // ✅ Toggle Play/Pause on Click
-  const togglePlayPause = () => {
-    const video = videoRefs.current[currentIndex];
-    if (video.paused) {
-      video.play();
+    if (offset < -200 || velocity < -500) {
+      // ✅ Scroll Up - Move to next video
+      if (currentIndex < videos.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+        y.set(0); // ✅ Reset position after swipe
+      }
+    } else if (offset > 200 || velocity > 500) {
+      // ✅ Scroll Down - Move to previous video
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+        y.set(0); // ✅ Reset position after swipe
+      }
     } else {
-      video.pause();
+      // ✅ If not swiped enough, snap back to current video
+      y.set(0);
     }
   };
 
   return (
-    <div
-      className="relative w-full h-screen overflow-hidden bg-black"
-      onWheel={handleScroll}
-      onKeyDown={handleKeyDown}
-      tabIndex={0} // ✅ Allows key navigation when clicking the page
-    >
+    <div className="relative w-full h-screen overflow-hidden bg-black">
+      
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
         <div className="flex space-x-6">
@@ -103,28 +57,29 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed - Scroll tied directly to video movement */}
+      {/* ✅ Video Feed - Videos move as a chain */}
       <motion.div
-        className="absolute w-full h-full flex flex-col items-center justify-center"
-        style={{ y: y }}
+        className="absolute w-full h-full flex flex-col"
+        drag="y"
+        dragControls={dragControls}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        onDragEnd={handleDragEnd} // ✅ Detects swipe release
+        style={{ y }}
       >
         {videos.map((videoUrl, index) => (
           <motion.div
             key={index}
             className="absolute w-full h-full flex justify-center items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: index === currentIndex ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
+            style={{ top: `${index * 100}%` }} // ✅ Makes videos stack on top of each other
           >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
               src={videoUrl}
-              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
+              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg"
               loop
               autoPlay
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click to play/pause
             />
           </motion.div>
         ))}
