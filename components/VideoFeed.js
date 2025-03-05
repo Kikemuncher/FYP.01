@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import fetchVideos from "../utils/fetchVideos"; // Fetch videos from backend
+import fetchVideos from "../utils/fetchVideos"; // Import function to fetch video URLs
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef([]); // Store video elements
+  const videoRefs = useRef([]);
 
   useEffect(() => {
     async function loadVideos() {
@@ -19,12 +19,14 @@ const VideoFeed = () => {
         entries.forEach((entry) => {
           const video = entry.target;
           if (entry.isIntersecting) {
+            console.log("🔵 Video is visible:", video.src); // Debugging log
             if (video.dataset.wasPlaying === "true") {
               video.play();
             }
           } else {
+            console.log("🟠 Video out of view:", video.src); // Debugging log
             if (!video.paused) {
-              video.dataset.wasPlaying = "true"; // Store play state
+              video.dataset.wasPlaying = "true"; // Remember state
             } else {
               video.dataset.wasPlaying = "false";
             }
@@ -32,7 +34,7 @@ const VideoFeed = () => {
           }
         });
       },
-      { threshold: 0.75 } // 75% visibility required to play
+      { threshold: 0.75 }
     );
 
     videoRefs.current.forEach((video) => {
@@ -44,26 +46,21 @@ const VideoFeed = () => {
     };
   }, [videos]);
 
-  // Function to toggle play/pause
   const togglePlayPause = (index) => {
     const video = videoRefs.current[index];
 
     if (!video) return;
 
-    if (video.paused) {
-      // Pause all other videos
-      videoRefs.current.forEach((vid, i) => {
-        if (vid && i !== index) {
-          vid.pause();
-          vid.dataset.wasPlaying = "false";
-        }
-      });
+    console.log("🟢 Clicked video:", video.src); // Debugging log
 
+    if (video.paused) {
       video.play();
       video.dataset.wasPlaying = "true";
+      console.log("▶ Video playing");
     } else {
       video.pause();
       video.dataset.wasPlaying = "false";
+      console.log("⏸ Video paused");
     }
   };
 
