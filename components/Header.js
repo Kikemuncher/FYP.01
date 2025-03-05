@@ -16,8 +16,8 @@ const Header = ({ isShow }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-teal-500 shadow-md z-50">
-      <nav className="flex items-center justify-between px-4 py-2 h-[60px] max-w-screen-xl mx-auto text-white">
+    <header className="fixed top-0 left-0 w-full bg-teal-700 shadow-md z-50">
+      <nav className="flex items-center justify-between px-4 py-2 h-[55px] max-w-screen-xl mx-auto text-white">
         
         {/* ✅ Logo (Left Side) */}
         <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
@@ -39,7 +39,7 @@ const Header = ({ isShow }) => {
           <div className="relative">
             <input
               type="text"
-              className="border border-white rounded-full px-3 py-1 w-64 bg-teal-600 text-white placeholder-white outline-none"
+              className="border border-white rounded-full px-3 py-1 w-64 bg-teal-800 text-white placeholder-white outline-none"
               placeholder="Search accounts and videos"
             />
             <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white">
@@ -66,7 +66,7 @@ const Header = ({ isShow }) => {
           {isShow && user && (
             <button
               onClick={() => router.push("/pin/create")}
-              className="bg-white text-teal-600 px-4 py-1 rounded-lg text-sm font-semibold"
+              className="bg-white text-teal-700 px-4 py-1 rounded-lg text-sm font-semibold"
             >
               Upload
             </button>
@@ -78,7 +78,7 @@ const Header = ({ isShow }) => {
               alt="Avatar"
             />
           ) : (
-            <button className="bg-white text-teal-600 px-3 py-1 rounded-lg text-sm font-semibold" onClick={() => router.push("/auth/signin")}>
+            <button className="bg-white text-teal-700 px-3 py-1 rounded-lg text-sm font-semibold" onClick={() => router.push("/auth/signin")}>
               Log in
             </button>
           )}
