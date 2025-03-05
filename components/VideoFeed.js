@@ -6,6 +6,7 @@ const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     async function loadVideos() {
@@ -28,11 +29,17 @@ const VideoFeed = () => {
   }, [currentIndex]);
 
   const handleScroll = (event) => {
+    if (isScrolling) return; // ✅ Prevent multiple scrolls at once
+
+    setIsScrolling(true);
+
     if (event.deltaY > 0) {
       nextVideo();
     } else if (event.deltaY < 0) {
       prevVideo();
     }
+
+    setTimeout(() => setIsScrolling(false), 800); // ✅ Delay prevents rapid scrolling
   };
 
   const nextVideo = () => {
@@ -49,8 +56,8 @@ const VideoFeed = () => {
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden bg-black"
-      onWheel={handleScroll} // ✅ Enable mouse wheel navigation
+      className="relative w-full h-screen overflow-hidden bg-black flex justify-center items-center"
+      onWheel={handleScroll} // ✅ Enable smooth scrolling
     >
       <AnimatePresence>
         {videos.length > 0 && (
@@ -65,7 +72,7 @@ const VideoFeed = () => {
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-full h-full object-contain" // ✅ Fixes zoom issue
+              className="w-auto h-full max-w-none object-cover" // ✅ FIXES ZOOMED VIDEO
               loop
               autoPlay
               muted
