@@ -3,8 +3,7 @@ import fetchVideos from "../utils/fetchVideos"; // Fetch video URLs from backend
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef(new Map()); // Store video elements
-  const observer = useRef(null); // Store Intersection Observer
+  const videoRefs = useRef([]); // Store video elements
 
   useEffect(() => {
     async function loadVideos() {
@@ -15,10 +14,11 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
-    observer.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
+
           if (entry.isIntersecting) {
             if (video.dataset.wasPlaying === "true") {
               video.play();
@@ -33,20 +33,21 @@ const VideoFeed = () => {
           }
         });
       },
-      { threshold: 0.75 } // Triggers when 75% of the video is visible
+      { threshold: 0.75 } // Video must be 75% visible to play
     );
 
-    // Observe each video element
-    videoRefs.current.forEach((video) => observer.current.observe(video));
+    videoRefs.current.forEach((video) => {
+      if (video) observer.observe(video);
+    });
 
     return () => {
-      if (observer.current) observer.current.disconnect();
+      observer.disconnect();
     };
   }, [videos]);
 
-  // Function to play/pause video when tapped
+  // Function to toggle play/pause when tapping the video
   const handleVideoClick = (index) => {
-    const video = videoRefs.current.get(index);
+    const video = videoRefs.current[index];
 
     if (!video) return;
 
@@ -73,7 +74,7 @@ const VideoFeed = () => {
         videos.map((videoUrl, index) => (
           <div key={index} className="video-container">
             <video
-              ref={(el) => el && videoRefs.current.set(index, el)}
+              ref={(el) => (videoRefs.current[index] = el)}
               className="w-full h-auto rounded-lg"
               loop
               playsInline
