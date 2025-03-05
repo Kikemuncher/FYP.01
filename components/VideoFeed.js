@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import Post from "./Post"; // Import the Post component
+import { useSwipeable } from "react-swipeable";
+import { HiArrowUp, HiArrowDown } from "react-icons/hi";
 
-const VideoFeed = () => {
+const FYP = () => {
   const [videos, setVideos] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
 
   useEffect(() => {
@@ -15,62 +17,82 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-          if (entry.isIntersecting) {
-            video.play();
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.75 } // ✅ Plays when at least 75% of the video is visible
-    );
+    // Autoplay the current video
+    if (videoRefs.current[currentIndex]) {
+      videoRefs.current[currentIndex].play();
+    }
 
-    videoRefs.current.forEach((video) => {
-      if (video) observer.observe(video);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [videos]);
-
-  // ✅ Force First Video to Play on Page Load
-  useEffect(() => {
-    const playFirstVideo = () => {
-      if (videoRefs.current[0]) {
-        const firstVideo = videoRefs.current[0];
-
-        // Ensure video is allowed to play
-        firstVideo.muted = true; // Some browsers block autoplay unless muted
-        firstVideo.play().catch((error) => {
-          console.error("Autoplay blocked:", error);
-        });
+    // Pause all other videos
+    videoRefs.current.forEach((video, index) => {
+      if (index !== currentIndex && video) {
+        video.pause();
       }
-    };
+    });
+  }, [currentIndex]);
 
-    // Wait a bit before trying to play (fixes browser autoplay policies)
-    setTimeout(playFirstVideo, 500);
-  }, [videos]);
+  const handleNextVideo = () => {
+    if (currentIndex < videos.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const handlePrevVideo = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  // Swipe controls
+  const handlers = useSwipeable({
+    onSwipedUp: handleNextVideo,
+    onSwipedDown: handlePrevVideo,
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+  });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {videos.length > 0 ? (
-        videos.map((videoUrl, index) => (
-          <Post
-            key={index}
-            video={videoUrl}
-            ref={(el) => (videoRefs.current[index] = el)}
+    <div
+      className="relative w-full h-screen flex flex-col items-center justify-center bg-black"
+      {...handlers}
+    >
+      {videos.length > 0 && (
+        <>
+          <video
+            ref={(el) => (videoRefs.current[currentIndex] = el)}
+            src={videos[currentIndex]}
+            className="w-full h-full object-cover"
+            loop
+            autoPlay
+            muted
+            playsInline
           />
-        ))
-      ) : (
-        <p>Loading videos...</p>
+
+          {/* Navigation Buttons */}
+          <div className="absolute right-5 top-1/2 transform -translate-y-1/2 flex flex-col gap-6">
+            <button
+              onClick={handlePrevVideo}
+              className={`text-white bg-gray-800 p-3 rounded-full shadow-lg ${
+                currentIndex === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-700"
+              }`}
+              disabled={currentIndex === 0}
+            >
+              <HiArrowUp size={30} />
+            </button>
+
+            <button
+              onClick={handleNextVideo}
+              className={`text-white bg-gray-800 p-3 rounded-full shadow-lg ${
+                currentIndex === videos.length - 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-700"
+              }`}
+              disabled={currentIndex === videos.length - 1}
+            >
+              <HiArrowDown size={30} />
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
 };
 
-export default VideoFeed;
+export default FYP;
