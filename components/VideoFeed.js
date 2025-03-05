@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import fetchVideos from "../utils/fetchVideos"; // Function to get video URLs
+import fetchVideos from "../utils/fetchVideos"; // Fetch videos from backend
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
-  const videoRefs = useRef(new Map()); // Store video elements dynamically
-  const observer = useRef(null); // Intersection Observer
+  const videoRefs = useRef([]); // Store video elements
 
   useEffect(() => {
     async function loadVideos() {
@@ -15,11 +14,7 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
-    if (observer.current) {
-      observer.current.disconnect(); // Reset observer
-    }
-
-    observer.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const video = entry.target;
@@ -37,21 +32,21 @@ const VideoFeed = () => {
           }
         });
       },
-      { threshold: 0.75 } // Video must be at least 75% visible
+      { threshold: 0.75 } // 75% visibility required to play
     );
 
     videoRefs.current.forEach((video) => {
-      if (video) observer.current.observe(video);
+      if (video) observer.observe(video);
     });
 
     return () => {
-      observer.current.disconnect();
+      observer.disconnect();
     };
   }, [videos]);
 
   // Function to toggle play/pause
   const togglePlayPause = (index) => {
-    const video = videoRefs.current.get(index);
+    const video = videoRefs.current[index];
 
     if (!video) return;
 
@@ -79,7 +74,7 @@ const VideoFeed = () => {
           <div key={index} className="video-container">
             <video
               ref={(el) => {
-                if (el) videoRefs.current.set(index, el);
+                if (el) videoRefs.current[index] = el;
               }}
               className="w-full h-auto rounded-lg"
               loop
