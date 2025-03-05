@@ -41,7 +41,7 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => setIsScrolling(false), 900);
+    setTimeout(() => setIsScrolling(false), 500); // ✅ Reduced scroll delay for better control
   };
 
   const nextVideo = () => {
@@ -70,22 +70,22 @@ const VideoFeed = () => {
   return (
     <div
       className="relative w-full h-screen flex justify-center items-center bg-transparent pointer-events-auto"
-      onWheel={handleScroll} // ✅ Enable smooth scrolling
+      onWheel={handleScroll} // ✅ Ensures scrolling works smoothly
     >
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence mode="wait">
         {videos.length > 0 && (
           <motion.div
             key={currentIndex}
-            initial={{ y: currentIndex === 0 ? "100%" : "0%" }} // ✅ FIXED: New video enters from below
-            animate={{ y: "0%" }} // ✅ FIXED: Active video stays in place
-            exit={{ y: currentIndex === 0 ? "-100%" : "100%" }} // ✅ FIXED: Past videos exit from the top, new ones from the bottom
-            transition={{ type: "spring", stiffness: 80, damping: 25 }}
-            className="absolute w-full flex justify-center items-center"
+            initial={{ y: "100%" }} // ✅ Next video slides up from bottom
+            animate={{ y: "0%" }} // ✅ Active video stays in place
+            exit={{ y: "-100%" }} // ✅ Past videos exit from top
+            transition={{ type: "spring", stiffness: 80, damping: 20 }}
+            className="absolute w-full flex justify-center items-center pointer-events-auto"
           >
             <video
               ref={(el) => (videoRefs.current[currentIndex] = el)}
               src={videos[currentIndex]}
-              className="w-auto h-[90vh] max-w-[480px] object-cover rounded-lg shadow-lg pointer-events-auto" // ✅ FIXED: Removed overlay
+              className="w-auto h-[80vh] max-w-[500px] object-contain rounded-lg shadow-lg pointer-events-auto" // ✅ Fixed overlay issues
               loop
               autoPlay
               muted
@@ -103,6 +103,13 @@ const VideoFeed = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ✅ Sidebar UI is now fully visible */}
+      <div className="absolute left-0 top-0 w-[60px] h-full bg-gray-800 text-white flex flex-col justify-center items-center">
+        <p className="mb-4 cursor-pointer">FYP</p>
+        <p className="mb-4 cursor-pointer">Following</p>
+        <p className="cursor-pointer">Explore</p>
+      </div>
     </div>
   );
 };
