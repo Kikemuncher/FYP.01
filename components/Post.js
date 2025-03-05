@@ -18,7 +18,6 @@ import toast, { Toaster } from "react-hot-toast";
 
 import { GoVerified } from "react-icons/go";
 import { HiVolumeOff, HiVolumeUp } from "react-icons/hi";
-import { IoIosShareAlt } from "react-icons/io";
 
 import { auth, firestore } from "../firebase/firebase";
 import Comments from "./Comments";
@@ -47,7 +46,7 @@ const Post = ({
   const [isComOpen, setIsComOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Tap anywhere on video to play/pause
+  // ✅ Click anywhere on the video to toggle play/pause
   const togglePlayPause = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -66,7 +65,7 @@ const Post = ({
     }
   }, [isVideoMuted]);
 
-  // ✅ Automatically Pause when scrolling out of view
+  // ✅ Auto-pause video when out of view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -99,7 +98,7 @@ const Post = ({
         className="flex flex-col border-b-2 border-gray-200 pb-6"
       >
         <div>
-          <div className="flex gap-3 p-2 cursor-pointer font-semibold rounded ">
+          <div className="flex gap-3 p-2 cursor-pointer font-semibold rounded">
             <div className="md:w-16 md:h-16 w-10 h-10" onClick={() => router.push(`/user/${userId}`)}>
               <img className="rounded-full w-14" src={profileImage} alt="user-profile" />
             </div>
@@ -114,28 +113,29 @@ const Post = ({
           </div>
         </div>
 
-        {/* ✅ Clicking the entire video area now toggles play/pause */}
-        <div className="lg:ml-20 flex gap-4 relative">
-          <div className="rounded-3xl w-full h-auto">
-            <video
-              ref={videoRef}
-              src={video}
-              className="lg:w-[600px] h-[300px] md:h-[400px] lg:h-[528px] w-[200px] rounded-2xl cursor-pointer bg-gray-100"
-              loop
-              playsInline
-              onClick={togglePlayPause} // ✅ Click anywhere to play/pause
-            />
+        {/* ✅ Click anywhere to toggle play/pause */}
+        <div className="relative flex justify-center items-center w-full">
+          <video
+            ref={videoRef}
+            src={video}
+            className="lg:w-[600px] h-[300px] md:h-[400px] lg:h-[528px] w-[200px] rounded-2xl cursor-pointer bg-gray-100"
+            loop
+            playsInline
+            onClick={togglePlayPause} // ✅ Click anywhere to play/pause
+          />
 
-            {/* Play icon when video is paused */}
-            {!playing && (
-              <div className="absolute inset-0 flex items-center justify-center text-white text-5xl">
-                ▶
-              </div>
-            )}
-          </div>
+          {/* ✅ Play icon - Now properly centered */}
+          {!playing && (
+            <div
+              className="absolute inset-0 flex items-center justify-center text-white text-6xl bg-black/50 rounded-full p-6 cursor-pointer"
+              onClick={togglePlayPause} // ✅ Clicking the play icon also plays the video
+            >
+              ▶
+            </div>
+          )}
 
-          {/* ✅ Volume Control */}
-          <div className="absolute bottom-6 left-4 md:left-8">
+          {/* ✅ Volume button - Now in the correct position */}
+          <div className="absolute bottom-6 right-6">
             {isVideoMuted ? (
               <button onClick={() => setIsVideoMuted(false)}>
                 <HiVolumeOff className="text-white text-3xl" />
