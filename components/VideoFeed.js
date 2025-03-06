@@ -4,7 +4,6 @@ import fetchVideos from "../utils/fetchVideos";
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
 
@@ -20,15 +19,13 @@ const VideoFeed = () => {
     // ✅ Ensure only the current video plays, others are paused
     videoRefs.current.forEach((video, index) => {
       if (index === currentIndex) {
-        if (!isPaused) {
-          video?.play();
-        }
+        video?.play();
       } else {
         video?.pause();
         video.currentTime = 0;
       }
     });
-  }, [currentIndex, isPaused]);
+  }, [currentIndex]);
 
   // ✅ Detect scroll and snap to the closest video
   const handleScroll = () => {
@@ -40,7 +37,7 @@ const VideoFeed = () => {
     setCurrentIndex(newIndex);
   };
 
-  // ✅ Toggle Play/Pause on Click (Now Truly Fixed)
+  // ✅ Toggle Play/Pause on Click (No Skipping)
   const togglePlayPause = () => {
     const video = videoRefs.current[currentIndex];
 
@@ -48,10 +45,8 @@ const VideoFeed = () => {
 
     if (video.paused) {
       video.play();
-      setIsPaused(false);
     } else {
       video.pause();
-      setIsPaused(true);
     }
   };
 
@@ -60,7 +55,7 @@ const VideoFeed = () => {
       ref={containerRef}
       className="relative w-full h-screen overflow-y-auto bg-black snap-y snap-mandatory"
       onScroll={handleScroll}
-      style={{ scrollSnapType: "y mandatory" }} // ✅ Forces Snap-to-Video Behavior
+      style={{ scrollSnapType: "y mandatory", scrollBehavior: "smooth" }} // ✅ Forces Snap-to-Video Behavior
     >
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
