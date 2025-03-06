@@ -39,7 +39,7 @@ const VideoFeed = () => {
   };
 
   // ✅ Lock Onto Next Video If Threshold is Passed
-  const handleScrollEnd = () => {
+  const snapVideoIntoPlace = () => {
     if (isScrolling.current) return;
     isScrolling.current = true; // ✅ Prevent Multiple Rapid Scrolls
 
@@ -62,14 +62,14 @@ const VideoFeed = () => {
 
     setTimeout(() => {
       isScrolling.current = false;
-      // ✅ Play only the snapped video
+      // ✅ Play only the snapped video AFTER snapping is done
       if (videoRefs.current[newIndex]) {
         videoRefs.current[newIndex].play();
       }
-    }, 400); // ✅ Wait for animation to finish before playing video
+    }, 500); // ✅ Wait for animation to finish before playing video
   };
 
-  // ✅ Toggle Play/Pause on Click (Even If Mouse Moves)
+  // ✅ Toggle Play/Pause on Click
   const togglePlayPause = (event) => {
     event.stopPropagation(); // ✅ Prevents accidental triggering other functions
     const video = videoRefs.current[currentIndex];
@@ -84,8 +84,8 @@ const VideoFeed = () => {
     <div
       className="relative w-full h-screen overflow-hidden bg-black"
       onWheel={handleScroll}
-      onMouseUp={handleScrollEnd} // ✅ Lock Video After Scroll Ends
-      onKeyUp={handleScrollEnd} // ✅ Also Works for Arrow Keys
+      onMouseUp={snapVideoIntoPlace} // ✅ Lock Video After Scroll Ends
+      onKeyUp={snapVideoIntoPlace} // ✅ Also Works for Arrow Keys
       tabIndex={0}
       style={{ height: "100vh" }}
     >
@@ -117,7 +117,7 @@ const VideoFeed = () => {
               loop
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click only pauses/plays the video (fixes mouse move issue)
+              onClick={togglePlayPause} // ✅ Click only pauses/plays the video
             />
           </motion.div>
         ))}
