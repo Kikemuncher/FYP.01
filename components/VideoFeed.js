@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, useSpring, useAnimation } from "framer-motion";
+import { motion, useMotionValue, useAnimation } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
@@ -9,8 +9,8 @@ const VideoFeed = () => {
   const y = useMotionValue(0);
   const controls = useAnimation();
   const videoHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-  const scrollThreshold = videoHeight * 0.25; // ✅ 25% Scroll Required Before Switching Video
-  const isScrolling = useRef(false); // ✅ Prevents rapid multiple actions
+  const scrollThreshold = videoHeight * 0.35; // ✅ 35% Scroll Required Before Switching Video
+  const isScrolling = useRef(false); // ✅ Prevents multiple rapid actions
 
   useEffect(() => {
     async function loadVideos() {
@@ -66,7 +66,17 @@ const VideoFeed = () => {
       if (videoRefs.current[newIndex]) {
         videoRefs.current[newIndex].play();
       }
-    }, 700); // ✅ Wait for animation to finish before playing video
+    }, 500); // ✅ Wait for animation to finish before playing video
+  };
+
+  // ✅ Toggle Play/Pause on Click
+  const togglePlayPause = () => {
+    const video = videoRefs.current[currentIndex];
+    if (video.paused) {
+      video.play();
+    } else {
+      video.pause();
+    }
   };
 
   return (
@@ -106,6 +116,7 @@ const VideoFeed = () => {
               loop
               muted
               playsInline
+              onClick={togglePlayPause} // ✅ Click only pauses/plays the video
             />
           </motion.div>
         ))}
