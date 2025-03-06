@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, useDragControls } from "framer-motion";
+import { motion, useMotionValue, animate } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const dragControls = useDragControls();
   const y = useMotionValue(0); // ✅ Controls smooth scrolling effect
+  const isScrolling = useRef(false); // ✅ Prevents multiple skips
 
   useEffect(() => {
     async function loadVideos() {
@@ -23,31 +23,60 @@ const VideoFeed = () => {
     }
   }, [currentIndex]);
 
-  const handleDragEnd = (event, info) => {
-    const offset = info.offset.y;
-    const velocity = info.velocity.y;
+  // ✅ Smooth scrolling with mouse wheel
+  const handleScroll = (event) => {
+    if (isScrolling.current) return;
+    isScrolling.current = true;
 
-    if (offset < -200 || velocity < -500) {
-      // ✅ Scroll Up - Move to next video
-      if (currentIndex < videos.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-        y.set(0); // ✅ Reset position after swipe
-      }
-    } else if (offset > 200 || velocity > 500) {
-      // ✅ Scroll Down - Move to previous video
-      if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-        y.set(0); // ✅ Reset position after swipe
-      }
-    } else {
-      // ✅ If not swiped enough, snap back to current video
-      y.set(0);
+    if (event.deltaY > 0) {
+      nextVideo();
+    } else if (event.deltaY < 0) {
+      prevVideo();
+    }
+
+    setTimeout(() => (isScrolling.current = false), 800);
+  };
+
+  // ✅ Smooth scrolling with Arrow Keys
+  const handleKeyDown = (event) => {
+    if (event.key === "ArrowDown") {
+      nextVideo();
+    } else if (event.key === "ArrowUp") {
+      prevVideo();
+    }
+  };
+
+  // ✅ Move to next video
+  const nextVideo = () => {
+    if (currentIndex < videos.length - 1) {
+      setCurrentIndex((prevIndex) => prevIndex + 1);
+      animate(y, -window.innerHeight * (currentIndex + 1), {
+        type: "spring",
+        stiffness: 80,
+        damping: 20,
+      });
+    }
+  };
+
+  // ✅ Move to previous video
+  const prevVideo = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prevIndex) => prevIndex - 1);
+      animate(y, -window.innerHeight * (currentIndex - 1), {
+        type: "spring",
+        stiffness: 80,
+        damping: 20,
+      });
     }
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
-      
+    <div
+      className="relative w-full h-screen overflow-hidden bg-black"
+      onWheel={handleScroll}
+      onKeyDown={handleKeyDown}
+      tabIndex={0} // ✅ Allows key navigation when clicking the page
+    >
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
         <div className="flex space-x-6">
@@ -57,14 +86,10 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed - Videos move as a chain */}
+      {/* ✅ Video Feed - Scroll tied directly to video movement */}
       <motion.div
         className="absolute w-full h-full flex flex-col"
-        drag="y"
-        dragControls={dragControls}
-        dragConstraints={{ top: 0, bottom: 0 }}
-        onDragEnd={handleDragEnd} // ✅ Detects swipe release
-        style={{ y }}
+        style={{ y: y }}
       >
         {videos.map((videoUrl, index) => (
           <motion.div
@@ -75,7 +100,7 @@ const VideoFeed = () => {
             <video
               ref={(el) => (videoRefs.current[index] = el)}
               src={videoUrl}
-              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg"
+              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
               loop
               autoPlay
               muted
