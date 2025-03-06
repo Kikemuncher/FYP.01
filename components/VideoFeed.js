@@ -21,12 +21,11 @@ const VideoFeed = () => {
   }, []);
 
   useEffect(() => {
-    if (videoRefs.current[currentIndex]) {
-      videoRefs.current[currentIndex].play();
-    }
-
+    // ✅ Ensure only the current video plays, others are paused
     videoRefs.current.forEach((video, index) => {
-      if (index !== currentIndex && video) {
+      if (index === currentIndex && video) {
+        video.play();
+      } else if (video) {
         video.pause();
         video.currentTime = 0;
       }
@@ -36,7 +35,7 @@ const VideoFeed = () => {
   // ✅ Scroll Moves Video Position Smoothly
   const handleScroll = (event) => {
     if (isScrolling.current) return;
-    y.set(y.get() - event.deltaY * 0.8); // ✅ Reversed for Correct Scrolling Direction
+    y.set(y.get() - event.deltaY * 0.8); // ✅ Correct Scroll Direction
   };
 
   // ✅ Lock Onto Next Video If Threshold is Passed
@@ -58,10 +57,16 @@ const VideoFeed = () => {
     // ✅ Animate Smoothly to Lock on Video
     controls.start({
       y: -videoHeight * newIndex,
-      transition: { type: "spring", stiffness: 90, damping: 20 },
+      transition: { type: "spring", stiffness: 100, damping: 25 },
     });
 
-    setTimeout(() => (isScrolling.current = false), 700); // ✅ Allow Next Scroll After Animation
+    setTimeout(() => {
+      isScrolling.current = false;
+      // ✅ Play only the snapped video
+      if (videoRefs.current[newIndex]) {
+        videoRefs.current[newIndex].play();
+      }
+    }, 700); // ✅ Wait for animation to finish before playing video
   };
 
   return (
@@ -99,7 +104,6 @@ const VideoFeed = () => {
               src={videoUrl}
               className="w-auto h-full max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
               loop
-              autoPlay
               muted
               playsInline
             />
