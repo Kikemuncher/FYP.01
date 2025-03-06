@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
+import { FaPlay, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const containerRef = useRef(null);
   const videoRefs = useRef([]);
 
@@ -19,13 +22,23 @@ const VideoFeed = () => {
     // ✅ Ensure only the current video plays, others are paused
     videoRefs.current.forEach((video, index) => {
       if (index === currentIndex) {
-        video?.play();
+        if (!isPaused) {
+          video?.play();
+        }
+        video.muted = isMuted; // ✅ Apply mute state to video
       } else {
         video?.pause();
         video.currentTime = 0;
       }
     });
-  }, [currentIndex]);
+  }, [currentIndex, isPaused, isMuted]);
+
+  useEffect(() => {
+    // ✅ Autoplay first video when page loads
+    if (videos.length > 0 && videoRefs.current[0]) {
+      videoRefs.current[0].play();
+    }
+  }, [videos]);
 
   // ✅ Detect scroll and snap to the closest video
   const handleScroll = () => {
@@ -45,9 +58,16 @@ const VideoFeed = () => {
 
     if (video.paused) {
       video.play();
+      setIsPaused(false);
     } else {
       video.pause();
+      setIsPaused(true);
     }
+  };
+
+  // ✅ Toggle Mute/Unmute
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev);
   };
 
   return (
@@ -71,17 +91,37 @@ const VideoFeed = () => {
         {videos.map((videoUrl, index) => (
           <div
             key={index}
-            className="w-full h-screen flex justify-center items-center snap-center"
+            className="relative w-full h-screen flex justify-center items-center snap-center"
           >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
               src={videoUrl}
               className="w-auto h-full max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
               loop
-              muted
               playsInline
+              muted={isMuted}
               onClick={togglePlayPause}
             />
+
+            {/* ✅ Play Button Overlay (Appears When Paused) */}
+            {isPaused && currentIndex === index && (
+              <div
+                className="absolute inset-0 flex justify-center items-center bg-black/30 rounded-lg"
+                onClick={togglePlayPause}
+              >
+                <FaPlay className="text-white text-5xl" />
+              </div>
+            )}
+
+            {/* ✅ Mute/Unmute Button (Bottom Right) */}
+            {currentIndex === index && (
+              <button
+                className="absolute bottom-5 right-5 bg-gray-900 text-white p-3 rounded-full shadow-md hover:bg-gray-700 transition"
+                onClick={toggleMute}
+              >
+                {isMuted ? <FaVolumeMute className="text-xl" /> : <FaVolumeUp className="text-xl" />}
+              </button>
+            )}
           </div>
         ))}
       </div>
