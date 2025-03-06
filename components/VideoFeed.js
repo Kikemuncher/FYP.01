@@ -78,21 +78,33 @@ const VideoFeed = () => {
       style={{ scrollSnapType: "y mandatory", scrollBehavior: "smooth" }} // ✅ Forces Snap-to-Video Behavior
     >
       {/* ✅ Video Feed - Full Snap Effect */}
-      <div className="relative w-full h-full flex flex-col gap-5 py-4"> {/* ✅ Adds Space Between Videos */}
+      <div className="relative w-full h-full flex flex-col gap-6 py-4"> {/* ✅ Adds Space Between Videos */}
         {videos.map((videoUrl, index) => (
           <div
             key={index}
             className="relative w-full h-screen flex justify-center items-center snap-center"
           >
-            <video
-              ref={(el) => (videoRefs.current[index] = el)}
-              src={videoUrl}
-              className="w-auto h-full max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
-              loop
-              playsInline
-              muted={isMuted}
-              onClick={togglePlayPause}
-            />
+            <div className="relative w-full flex justify-center">
+              <video
+                ref={(el) => (videoRefs.current[index] = el)}
+                src={videoUrl}
+                className="h-[95vh] max-h-[95vh] w-auto max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
+                loop
+                playsInline
+                muted={isMuted}
+                onClick={togglePlayPause}
+              />
+
+              {/* ✅ Mute/Unmute Button (Inside Video, Bottom Right) */}
+              {currentIndex === index && (
+                <button
+                  className="absolute bottom-6 right-6 bg-black/50 text-white p-3 rounded-full shadow-md hover:bg-black/70 transition"
+                  onClick={toggleMute}
+                >
+                  {isMuted ? <FaVolumeMute className="text-xl" /> : <FaVolumeUp className="text-xl" />}
+                </button>
+              )}
+            </div>
 
             {/* ✅ Play Button Overlay (Small Circle in Center) */}
             {isPaused && currentIndex === index && (
@@ -104,16 +116,6 @@ const VideoFeed = () => {
                   <FaPlay className="text-white text-3xl" />
                 </div>
               </div>
-            )}
-
-            {/* ✅ Mute/Unmute Button (Inside Video, Bottom Right) */}
-            {currentIndex === index && (
-              <button
-                className="absolute bottom-10 right-10 bg-black/50 text-white p-3 rounded-full shadow-md hover:bg-black/70 transition"
-                onClick={toggleMute}
-              >
-                {isMuted ? <FaVolumeMute className="text-xl" /> : <FaVolumeUp className="text-xl" />}
-              </button>
             )}
           </div>
         ))}
