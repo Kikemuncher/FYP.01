@@ -6,9 +6,9 @@ const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const y = useMotionValue(0); // ✅ Controls smooth scrolling effect
-  const isScrolling = useRef(false); // ✅ Prevents multiple skips
-  const scrollThreshold = 100; // ✅ Minimum scroll distance to trigger next video
+  const y = useMotionValue(0);
+  const isScrolling = useRef(false);
+  const videoHeight = typeof window !== "undefined" ? window.innerHeight : 800; // Dynamically adjust height
 
   useEffect(() => {
     async function loadVideos() {
@@ -29,13 +29,13 @@ const VideoFeed = () => {
     if (isScrolling.current) return;
     isScrolling.current = true;
 
-    if (event.deltaY > scrollThreshold) {
+    if (event.deltaY > 0) {
       nextVideo();
-    } else if (event.deltaY < -scrollThreshold) {
+    } else if (event.deltaY < 0) {
       prevVideo();
     }
 
-    setTimeout(() => (isScrolling.current = false), 600); // ✅ Prevents multiple skips
+    setTimeout(() => (isScrolling.current = false), 700);
   };
 
   // ✅ Smooth scrolling with Arrow Keys
@@ -49,16 +49,16 @@ const VideoFeed = () => {
       prevVideo();
     }
 
-    setTimeout(() => (isScrolling.current = false), 600);
+    setTimeout(() => (isScrolling.current = false), 700);
   };
 
   // ✅ Move to next video
   const nextVideo = () => {
     if (currentIndex < videos.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
-      animate(y, -window.innerHeight * (currentIndex + 1), {
+      animate(y, -videoHeight * (currentIndex + 1), {
         type: "spring",
-        stiffness: 80,
+        stiffness: 90,
         damping: 20,
       });
     }
@@ -68,9 +68,9 @@ const VideoFeed = () => {
   const prevVideo = () => {
     if (currentIndex > 0) {
       setCurrentIndex((prevIndex) => prevIndex - 1);
-      animate(y, -window.innerHeight * (currentIndex - 1), {
+      animate(y, -videoHeight * (currentIndex - 1), {
         type: "spring",
-        stiffness: 80,
+        stiffness: 90,
         damping: 20,
       });
     }
@@ -81,7 +81,8 @@ const VideoFeed = () => {
       className="relative w-full h-screen overflow-hidden bg-black"
       onWheel={handleScroll}
       onKeyDown={handleKeyDown}
-      tabIndex={0} // ✅ Allows key navigation when clicking the page
+      tabIndex={0}
+      style={{ height: "100vh" }} // ✅ Prevents page scrolling issues
     >
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
@@ -100,13 +101,13 @@ const VideoFeed = () => {
         {videos.map((videoUrl, index) => (
           <motion.div
             key={index}
-            className="absolute w-full h-full flex justify-center items-center"
+            className="absolute w-full h-screen flex justify-center items-center"
             style={{ top: `${index * 100}%` }} // ✅ Makes videos stack on top of each other
           >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
               src={videoUrl}
-              className="w-auto h-[90vh] max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
+              className="w-auto h-full max-w-[500px] object-cover rounded-lg shadow-lg cursor-pointer"
               loop
               autoPlay
               muted
