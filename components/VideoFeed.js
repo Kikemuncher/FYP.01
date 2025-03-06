@@ -57,7 +57,7 @@ const VideoFeed = () => {
     // ✅ Animate Smoothly to Lock on Video
     controls.start({
       y: -videoHeight * newIndex,
-      transition: { type: "spring", stiffness: 100, damping: 25 },
+      transition: { type: "spring", stiffness: 120, damping: 20 },
     });
 
     setTimeout(() => {
@@ -66,11 +66,12 @@ const VideoFeed = () => {
       if (videoRefs.current[newIndex]) {
         videoRefs.current[newIndex].play();
       }
-    }, 500); // ✅ Wait for animation to finish before playing video
+    }, 400); // ✅ Wait for animation to finish before playing video
   };
 
-  // ✅ Toggle Play/Pause on Click
-  const togglePlayPause = () => {
+  // ✅ Toggle Play/Pause on Click (Even If Mouse Moves)
+  const togglePlayPause = (event) => {
+    event.stopPropagation(); // ✅ Prevents accidental triggering other functions
     const video = videoRefs.current[currentIndex];
     if (video.paused) {
       video.play();
@@ -116,7 +117,7 @@ const VideoFeed = () => {
               loop
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click only pauses/plays the video
+              onClick={togglePlayPause} // ✅ Click only pauses/plays the video (fixes mouse move issue)
             />
           </motion.div>
         ))}
