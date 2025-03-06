@@ -72,10 +72,12 @@ const VideoFeed = () => {
     }, 500); // ✅ Wait for animation to finish before playing video
   };
 
-  // ✅ Toggle Play/Pause on Click (Now Fixed)
+  // ✅ Toggle Play/Pause on Click (Fixed No Skipping)
   const togglePlayPause = (event) => {
     event.stopPropagation(); // ✅ Prevents accidental triggering other functions
     const video = videoRefs.current[currentIndex];
+
+    if (!video) return; // Prevent errors if video is undefined
 
     if (video.paused) {
       video.play();
@@ -123,7 +125,7 @@ const VideoFeed = () => {
               loop
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click only pauses/plays the video (fixes bug)
+              onClick={togglePlayPause} // ✅ Click only pauses/plays the video (Fixed No Skipping)
             />
           </motion.div>
         ))}
