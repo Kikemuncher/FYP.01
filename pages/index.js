@@ -15,7 +15,7 @@ export default function Home() {
       </Head>
 
       {/* ✅ Ensure Header is at the top without overlapping */}
-      <Header isShow={true} />
+      <Header />
 
       {/* ✅ Ensure VideoFeed takes full screen */}
       <div className="w-full h-full">
