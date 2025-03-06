@@ -8,6 +8,7 @@ const VideoFeed = () => {
   const videoRefs = useRef([]);
   const y = useMotionValue(0); // ✅ Controls smooth scrolling effect
   const isScrolling = useRef(false); // ✅ Prevents multiple skips
+  const scrollThreshold = 100; // ✅ Minimum scroll distance to trigger next video
 
   useEffect(() => {
     async function loadVideos() {
@@ -28,22 +29,27 @@ const VideoFeed = () => {
     if (isScrolling.current) return;
     isScrolling.current = true;
 
-    if (event.deltaY > 0) {
+    if (event.deltaY > scrollThreshold) {
       nextVideo();
-    } else if (event.deltaY < 0) {
+    } else if (event.deltaY < -scrollThreshold) {
       prevVideo();
     }
 
-    setTimeout(() => (isScrolling.current = false), 800);
+    setTimeout(() => (isScrolling.current = false), 600); // ✅ Prevents multiple skips
   };
 
   // ✅ Smooth scrolling with Arrow Keys
   const handleKeyDown = (event) => {
+    if (isScrolling.current) return;
+    isScrolling.current = true;
+
     if (event.key === "ArrowDown") {
       nextVideo();
     } else if (event.key === "ArrowUp") {
       prevVideo();
     }
+
+    setTimeout(() => (isScrolling.current = false), 600);
   };
 
   // ✅ Move to next video
