@@ -1,14 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import fetchVideos from "../utils/fetchVideos";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { motion, useMotionValue, useSpring, useAnimation } from "framer-motion";
 
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const y = useMotionValue(0);
-  const isScrolling = useRef(false);
-  const videoHeight = typeof window !== "undefined" ? window.innerHeight : 800; // Dynamically adjust height
+  const y = useMotionValue(0); // ✅ Directly ties scroll movement to video movement
+  const controls = useAnimation();
+  const videoHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+  const scrollThreshold = videoHeight * 0.25; // ✅ Scroll must pass 25% before switching videos
 
   useEffect(() => {
     async function loadVideos() {
@@ -22,67 +23,44 @@ const VideoFeed = () => {
     if (videoRefs.current[currentIndex]) {
       videoRefs.current[currentIndex].play();
     }
+
+    videoRefs.current.forEach((video, index) => {
+      if (index !== currentIndex && video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
   }, [currentIndex]);
 
-  // ✅ Smooth scrolling with mouse wheel
+  // ✅ Handle scroll with smooth movement
   const handleScroll = (event) => {
-    if (isScrolling.current) return;
-    isScrolling.current = true;
-
-    if (event.deltaY > 0) {
-      nextVideo();
-    } else if (event.deltaY < 0) {
-      prevVideo();
-    }
-
-    setTimeout(() => (isScrolling.current = false), 700);
+    y.set(y.get() + event.deltaY * 0.8); // ✅ Scroll speed is controlled
   };
 
-  // ✅ Smooth scrolling with Arrow Keys
-  const handleKeyDown = (event) => {
-    if (isScrolling.current) return;
-    isScrolling.current = true;
+  // ✅ Handle scroll release & determine video switch
+  const handleScrollEnd = () => {
+    const offset = y.get();
+    const newIndex =
+      offset > scrollThreshold
+        ? Math.min(currentIndex + 1, videos.length - 1) // ✅ Scroll down
+        : offset < -scrollThreshold
+        ? Math.max(currentIndex - 1, 0) // ✅ Scroll up
+        : currentIndex; // ✅ Stay on current video
 
-    if (event.key === "ArrowDown") {
-      nextVideo();
-    } else if (event.key === "ArrowUp") {
-      prevVideo();
-    }
+    setCurrentIndex(newIndex);
 
-    setTimeout(() => (isScrolling.current = false), 700);
-  };
-
-  // ✅ Move to next video
-  const nextVideo = () => {
-    if (currentIndex < videos.length - 1) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-      animate(y, -videoHeight * (currentIndex + 1), {
-        type: "spring",
-        stiffness: 90,
-        damping: 20,
-      });
-    }
-  };
-
-  // ✅ Move to previous video
-  const prevVideo = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-      animate(y, -videoHeight * (currentIndex - 1), {
-        type: "spring",
-        stiffness: 90,
-        damping: 20,
-      });
-    }
+    // ✅ Animate back to the correct position (either current video or next/prev)
+    controls.start({ y: -videoHeight * newIndex, transition: { type: "spring", stiffness: 90, damping: 20 } });
   };
 
   return (
     <div
       className="relative w-full h-screen overflow-hidden bg-black"
       onWheel={handleScroll}
-      onKeyDown={handleKeyDown}
+      onMouseUp={handleScrollEnd} // ✅ Stops mid-scroll if needed
+      onKeyUp={handleScrollEnd} // ✅ Also applies for arrow keys
       tabIndex={0}
-      style={{ height: "100vh" }} // ✅ Prevents page scrolling issues
+      style={{ height: "100vh" }}
     >
       {/* ✅ FYP Header */}
       <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
@@ -93,16 +71,17 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed - Scroll tied directly to video movement */}
+      {/* ✅ Video Feed - True TikTok-style scrolling */}
       <motion.div
         className="absolute w-full h-full flex flex-col"
+        animate={controls}
         style={{ y: y }}
       >
         {videos.map((videoUrl, index) => (
           <motion.div
             key={index}
             className="absolute w-full h-screen flex justify-center items-center"
-            style={{ top: `${index * 100}%` }} // ✅ Makes videos stack on top of each other
+            style={{ top: `${index * 100}%` }}
           >
             <video
               ref={(el) => (videoRefs.current[index] = el)}
