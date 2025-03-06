@@ -73,12 +73,12 @@ const VideoFeed = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-y-auto bg-black snap-y snap-mandatory"
+      className="relative w-full h-screen overflow-y-auto bg-teal-700 snap-y snap-mandatory"
       onScroll={handleScroll}
       style={{ scrollSnapType: "y mandatory", scrollBehavior: "smooth" }} // ✅ Forces Snap-to-Video Behavior
     >
-      {/* ✅ FYP Header */}
-      <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-black/50 text-white text-lg font-bold z-10">
+      {/* ✅ FYP Header (Search Removed) */}
+      <div className="absolute top-0 w-full flex justify-center items-center py-4 bg-teal-800 text-white text-lg font-bold z-10">
         <div className="flex space-x-6">
           <p className="cursor-pointer border-b-2 border-white pb-1">For You</p>
           <p className="cursor-pointer opacity-50">Following</p>
@@ -103,20 +103,22 @@ const VideoFeed = () => {
               onClick={togglePlayPause}
             />
 
-            {/* ✅ Play Button Overlay (Appears When Paused) */}
+            {/* ✅ Play Button Overlay (Small Circle in Center) */}
             {isPaused && currentIndex === index && (
               <div
-                className="absolute inset-0 flex justify-center items-center bg-black/30 rounded-lg"
+                className="absolute inset-0 flex justify-center items-center"
                 onClick={togglePlayPause}
               >
-                <FaPlay className="text-white text-5xl" />
+                <div className="w-16 h-16 bg-black/60 rounded-full flex justify-center items-center">
+                  <FaPlay className="text-white text-3xl" />
+                </div>
               </div>
             )}
 
-            {/* ✅ Mute/Unmute Button (Bottom Right) */}
+            {/* ✅ Mute/Unmute Button (Inside Video, Bottom Right) */}
             {currentIndex === index && (
               <button
-                className="absolute bottom-5 right-5 bg-gray-900 text-white p-3 rounded-full shadow-md hover:bg-gray-700 transition"
+                className="absolute bottom-5 right-5 bg-black/50 text-white p-3 rounded-full shadow-md hover:bg-black/70 transition"
                 onClick={toggleMute}
               >
                 {isMuted ? <FaVolumeMute className="text-xl" /> : <FaVolumeUp className="text-xl" />}
