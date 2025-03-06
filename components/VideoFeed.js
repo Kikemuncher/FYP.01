@@ -6,10 +6,11 @@ const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const videoRefs = useRef([]);
-  const y = useMotionValue(0); // ✅ Directly ties scroll movement to video movement
+  const y = useMotionValue(0);
   const controls = useAnimation();
   const videoHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-  const scrollThreshold = videoHeight * 0.25; // ✅ Scroll must pass 25% before switching videos
+  const scrollThreshold = videoHeight * 0.25; // ✅ 25% Scroll Required Before Switching Video
+  const isScrolling = useRef(false); // ✅ Prevents rapid multiple actions
 
   useEffect(() => {
     async function loadVideos() {
@@ -32,33 +33,43 @@ const VideoFeed = () => {
     });
   }, [currentIndex]);
 
-  // ✅ Handle scroll with smooth movement
+  // ✅ Scroll Moves Video Position Smoothly
   const handleScroll = (event) => {
-    y.set(y.get() + event.deltaY * 0.8); // ✅ Scroll speed is controlled
+    if (isScrolling.current) return;
+    y.set(y.get() - event.deltaY * 0.8); // ✅ Reversed for Correct Scrolling Direction
   };
 
-  // ✅ Handle scroll release & determine video switch
+  // ✅ Lock Onto Next Video If Threshold is Passed
   const handleScrollEnd = () => {
+    if (isScrolling.current) return;
+    isScrolling.current = true; // ✅ Prevent Multiple Rapid Scrolls
+
     const offset = y.get();
-    const newIndex =
-      offset > scrollThreshold
-        ? Math.min(currentIndex + 1, videos.length - 1) // ✅ Scroll down
-        : offset < -scrollThreshold
-        ? Math.max(currentIndex - 1, 0) // ✅ Scroll up
-        : currentIndex; // ✅ Stay on current video
+    let newIndex = currentIndex;
+
+    if (offset < -scrollThreshold) {
+      newIndex = Math.min(currentIndex + 1, videos.length - 1); // ✅ Scroll Down to Next Video
+    } else if (offset > scrollThreshold) {
+      newIndex = Math.max(currentIndex - 1, 0); // ✅ Scroll Up to Previous Video
+    }
 
     setCurrentIndex(newIndex);
 
-    // ✅ Animate back to the correct position (either current video or next/prev)
-    controls.start({ y: -videoHeight * newIndex, transition: { type: "spring", stiffness: 90, damping: 20 } });
+    // ✅ Animate Smoothly to Lock on Video
+    controls.start({
+      y: -videoHeight * newIndex,
+      transition: { type: "spring", stiffness: 90, damping: 20 },
+    });
+
+    setTimeout(() => (isScrolling.current = false), 700); // ✅ Allow Next Scroll After Animation
   };
 
   return (
     <div
       className="relative w-full h-screen overflow-hidden bg-black"
       onWheel={handleScroll}
-      onMouseUp={handleScrollEnd} // ✅ Stops mid-scroll if needed
-      onKeyUp={handleScrollEnd} // ✅ Also applies for arrow keys
+      onMouseUp={handleScrollEnd} // ✅ Lock Video After Scroll Ends
+      onKeyUp={handleScrollEnd} // ✅ Also Works for Arrow Keys
       tabIndex={0}
       style={{ height: "100vh" }}
     >
@@ -71,7 +82,7 @@ const VideoFeed = () => {
         </div>
       </div>
 
-      {/* ✅ Video Feed - True TikTok-style scrolling */}
+      {/* ✅ Video Feed - True TikTok Scrolling with Correct Direction */}
       <motion.div
         className="absolute w-full h-full flex flex-col"
         animate={controls}
