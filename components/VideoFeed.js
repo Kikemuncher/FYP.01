@@ -5,6 +5,7 @@ import { motion, useMotionValue, useAnimation } from "framer-motion";
 const VideoFeed = () => {
   const [videos, setVideos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false); // ✅ Track Play/Pause State
   const videoRefs = useRef([]);
   const y = useMotionValue(0);
   const controls = useAnimation();
@@ -24,13 +25,15 @@ const VideoFeed = () => {
     // ✅ Ensure only the current video plays, others are paused
     videoRefs.current.forEach((video, index) => {
       if (index === currentIndex && video) {
-        video.play();
+        if (!isPaused) {
+          video.play();
+        }
       } else if (video) {
         video.pause();
         video.currentTime = 0;
       }
     });
-  }, [currentIndex]);
+  }, [currentIndex, isPaused]);
 
   // ✅ Scroll Moves Video Position Smoothly
   const handleScroll = (event) => {
@@ -63,20 +66,23 @@ const VideoFeed = () => {
     setTimeout(() => {
       isScrolling.current = false;
       // ✅ Play only the snapped video AFTER snapping is done
-      if (videoRefs.current[newIndex]) {
+      if (videoRefs.current[newIndex] && !isPaused) {
         videoRefs.current[newIndex].play();
       }
     }, 500); // ✅ Wait for animation to finish before playing video
   };
 
-  // ✅ Toggle Play/Pause on Click
+  // ✅ Toggle Play/Pause on Click (Now Fixed)
   const togglePlayPause = (event) => {
     event.stopPropagation(); // ✅ Prevents accidental triggering other functions
     const video = videoRefs.current[currentIndex];
+
     if (video.paused) {
       video.play();
+      setIsPaused(false); // ✅ Keep Video Playing Until Clicked Again
     } else {
       video.pause();
+      setIsPaused(true); // ✅ Keep Video Paused Until Clicked Again
     }
   };
 
@@ -117,7 +123,7 @@ const VideoFeed = () => {
               loop
               muted
               playsInline
-              onClick={togglePlayPause} // ✅ Click only pauses/plays the video
+              onClick={togglePlayPause} // ✅ Click only pauses/plays the video (fixes bug)
             />
           </motion.div>
         ))}
