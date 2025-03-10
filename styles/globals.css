@@ -2,31 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
-/*    */
-
+/* ✅ Reset Styling */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* ✅ Page Background */
 body {
- display: flex;
+  display: flex;
   flex-direction: column;
   font-family: sans-serif;
   background-color: #007070; /* Slightly Darker Teal */
   color: white;
-  padding-top: 60px; /* ✅ Ensures content starts BELOW the header */
-  margin-bottom: 0; /* ✅ Removes any unnecessary bottom spacing */
-  overflow-x: hidden; /* ✅ Prevents unwanted horizontal scrolling */
+  margin-bottom: 0;
+  overflow-x: hidden;
 }
+
+/* ✅ Remove Header */
+header {
+  display: none;
+}
+
+/* ✅ Ensure Video Starts at Top */
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ✅ Video Feed */
+.videos-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+/* ✅ Individual Video */
+.video-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  scroll-snap-align: start;
+}
+
+.video-player {
+  width: auto;
+  max-width: 500px;
+  height: 95vh;
+  max-height: 95vh;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+/* ✅ Mute Button (Inside Video) */
+.mute-btn {
+  position: absolute;
+  bottom: 6%;
+  right: 6%;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 12px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.mute-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* ✅ Play Button Overlay */
+.play-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.play-overlay svg {
+  color: white;
+  font-size: 2rem;
+}
+
+/* ✅ Hide Sidebars */
+.left,
+.right {
+  display: none;
+}
+
+/* ✅ Remove Search Bar */
+.search-bar {
+  display: none;
+}
+
+/* ✅ Hide Login Button */
+.login-btn {
+  display: none;
+}
+
+/* ✅ Hide Footer */
+.footer,
+.tags,
+.links {
+  display: none;
+}
+
+/* ✅ Scrollbar Customization */
+.videos-container::-webkit-scrollbar {
+  width: 0;
+}
+
+/* ✅ Mobile Adjustments */
+@media (max-width: 768px) {
+  .video-player {
+    max-width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .mute-btn {
+    bottom: 4%;
+    right: 4%;
+  }
+}
+
+/* ====================== EXISTING STYLES PRESERVED ====================== */
 
 .navbar {
   display: flex;
   justify-content: space-around;
   align-items: center;
   height: 4rem;
-  /*   border-bottom: 1px solid rgb(200, 200, 200); */
 }
 
 .logo {
@@ -38,59 +167,6 @@ body {
   cursor: pointer;
 }
 
-.search-bar {
-  display: flex;
-}
-
-.search-input {
-  outline: none;
-  background-color: #008080; /* Dark teal */
-  color: white;
-  border: 2px solid #004d4d; /* Darker teal border */
-  border-right: none; /* Ensures no double border with the button */
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-  border-top-right-radius: 0; /* Square edge */
-  border-bottom-right-radius: 0; /* Square edge */
-  height: 3rem;
-  width: 17rem;
-  text-indent: 20px;
-  font-size: 15px;
-}
-
-.search-btn {
-  position: relative;
-  background-color: #008080; /* Same as input */
-  border: 2px solid #004d4d; /* Same border color as input */
-  border-left: none; /* Prevents double border between input & button */
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-.search-btn:hover {
-  background-color: #006666; /* Slightly darker teal on hover */
-}
-
-.search-btn::before {
-  content: "";
-  height: 70%;
-  width: 1px;
-  position: absolute;
-  right: 100%;
-  top: 15%;
-  background-color: rgb(200, 200, 200);
-}
-
-.search-btn > i {
-  color: white; /* Change search icon color */
-}
-
 .nav-right {
   display: flex;
   justify-content: space-between;
@@ -99,6 +175,7 @@ body {
   margin-right: 4rem;
 }
 
+/* ✅ Upload Button */
 .upload-btn {
   background-color: transparent;
   border: none;
@@ -112,77 +189,39 @@ body {
   cursor: pointer;
 }
 
-.login-btn {
-  height: 2.3rem;
-  width: 6rem;
-  color: #fff;
-  background-color: rgb(254, 44, 85);
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  font-weight: 600;
+/* ✅ Search Input */
+.search-input {
+  outline: none;
+  background-color: #008080;
+  color: white;
+  border: 2px solid #004d4d;
+  border-right: none;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  height: 3rem;
+  width: 17rem;
+  text-indent: 20px;
+  font-size: 15px;
 }
 
-.login-btn:hover {
-  background-color: rgb(233, 37, 76);
-  cursor: pointer;
-}
-
-.drop-down {
-  background-color: transparent;
-  border: none;
+/* ✅ Search Button */
+.search-btn {
   position: relative;
-}
-
-.drop-down:hover {
+  background-color: #008080;
+  border: 2px solid #004d4d;
+  border-left: none;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
-.menu {
-  position: absolute;
-  top: 200%;
-  right: 0;
-  background-color: #fff;
-  width: 14rem;
-  border-radius: 5px;
-  box-shadow: 5px 3px 5px 5px rgba(0, 0, 0, 0.097);
-}
-
-ul {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  list-style-type: none;
-  height: 100%;
-}
-
-li {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-  padding-top: 0.5rem;
-  height: 2.5rem;
-  width: 100%;
-}
-
-li:hover {
-  background-color: rgb(245, 245, 245);
-}
-
-li > a {
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #000;
-}
-
-li > a > i {
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-
-.hidden {
-  display: none;
+.search-btn:hover {
+  background-color: #006666;
 }
 
 main {
@@ -190,121 +229,18 @@ main {
   width: 100vw;
 }
 
+/* ✅ Sidebar Left */
 .left {
-  flex: 0.25; /* Reduce width to allow more space for central player */
+  flex: 0.25;
   height: 90vh;
   overflow-y: hidden;
   overflow-x: hidden;
-  margin-left: -40px; /* Moves the entire section more to the left */
-  padding-left: 10px; /* Ensure spacing inside remains good */
+  margin-left: -40px;
+  padding-left: 10px;
 }
 
 .left:hover {
   overflow-y: scroll;
-}
-
-.btns {
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid rgb(200, 200, 200);
-  padding-bottom: 1rem;
-  margin-top: 1rem;
-  margin-left: 4rem; /* Adjusted left margin */
-  margin-right: 2rem; /* Add extra spacing on the right */
-  width: auto; /* Ensures it fits content properly */
-  max-width: 80%; /* Prevents cutoff */
-  overflow: hidden; /* Makes sure text wraps */
-  text-overflow: ellipsis; /* Adds "..." if text is too long */
-  white-space: nowrap; /* Optional: Forces text into a single line */
-}
-
-.btns > a {
-  text-decoration: none;
-  font-size: 1.2rem;
-  color: rgb(22, 24, 35);
-  font-weight: 600;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-left: 1rem;
-  border-radius: 5px;
-}
-
-.btns > a:hover {
-  background-color: rgb(245, 245, 245);
-}
-
-.btns > a:first-child > i,
-.btns > a:first-child > span {
-  color: rgb(254, 44, 85);
-}
-
-.btns > a > i {
-  margin-right: 1rem;
-}
-
-.login {
-  margin-top: 1rem;
-  border-bottom: 1px solid rgb(200, 200, 200);
-  padding-bottom: 1rem;
-  margin-left: 8rem;
-  margin-right: 1rem;
-  width: 90%;
-}
-
-.login > p {
-  color: rgba(22, 24, 35, 0.5);
-  font-size: 0.9rem;
-  line-height: 25px;
-  width: 70%;
-}
-
-.login > button {
-  margin-top: 1rem;
-  background-color: transparent;
-  border: 1px solid rgb(254, 44, 85);
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: rgb(254, 44, 85);
-  cursor: pointer;
-  border-radius: 5px;
-  height: 3rem;
-  width: 70%;
-}
-
-.login > button:hover {
-  background-color: rgba(245, 44, 86, 0.05);
-}
-
-.accounts {
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid rgb(200, 200, 200);
-  padding-bottom: 1rem;
-  margin-left: 8rem;
-  margin-right: 1rem;
-  width: 90%;
-}
-
-.accounts > p {
-  margin-top: 1rem;
-  color: rgb(22, 24, 35, 0.75);
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-}
-
-.user:hover {
-  background-color: rgb(245, 245, 245);
-  cursor: pointer;
 }
 
 .user > img {
@@ -314,115 +250,11 @@ main {
   border: 0.5px solid #000;
 }
 
-.user > h6 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-left: 1rem;
-}
-
-.tags {
-  border-bottom: 1px solid rgb(200, 200, 200);
-  padding-bottom: 1rem;
-  margin-top: 1rem;
-  margin-left: 8rem;
-  margin-right: 1rem;
-  width: 70%;
-}
-
-.tags > p {
-  margin-top: 1rem;
-  color: rgba(22, 24, 35, 0.75);
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.tags > div {
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: 10px;
-  column-gap: 5px;
-}
-
-.tags > div > a {
-  text-decoration: none;
-  color: rgba(22, 24, 35, 0.75);
-  font-size: 0.9rem;
-  border-radius: 5px;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-/* .tags > div > a:hover {
-  background-color: rgb(245, 245, 245);
-} */
-
-.links {
-  padding-bottom: 1rem;
-  margin-top: 1rem;
-  margin-left: 8rem;
-  margin-right: 1rem;
-  width: 60%;
-}
-
-.links > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.link {
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: 10px;
-  column-gap: 5px;
-}
-
-.link > a {
-  font-size: 0.8rem;
-  text-decoration: none;
-  color: rgb(80, 80, 80);
-}
-
-.link > a:hover {
-  text-decoration: underline;
-}
-
-.copyright {
-  margin-top: 1rem;
-  color: rgb(80, 80, 80);
-}
-
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgba(22, 24, 35, 0.06);
-}
-
-.right {
-  flex: 0.65;
-  height: 90vh;
-  overflow-y: scroll;
-}
-
-.post {
-  margin-top: 2rem;
-  margin-right: 4rem;
-  height: 38rem;
-  width: 80%;
-  border-bottom: 1px solid rgb(200, 200, 200);
-}
-
 .post-info {
-  position: relative; /* Ensure positioning works */
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.post-info > .user:hover {
-  background-color: transparent;
 }
 
 .post-info > .user > img {
@@ -436,45 +268,6 @@ main {
   justify-content: space-evenly;
   height: 100%;
   margin-left: 0.5rem;
-}
-
-.post-info > .user > div > h6 {
-  font-size: 1rem;
-}
-
-.post-info > .user > div > h6:hover {
-  text-decoration: underline;
-}
-
-.post-info > .user > div > p {
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.post-info > button {
-  position: absolute;
-  right: 10px; /* Moves it more to the right */
-  top: 1rem;
-  background-color: transparent;
-  border: 1px solid rgb(254, 44, 85);
-  color: rgb(254, 44, 85);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 5px;
-  height: 1.7rem;
-  width: 5.7rem;
-}
-
-.post-info > button:hover {
-  background-color: rgba(254, 44, 86, 0.05);
-}
-
-.post-content {
-  display: flex;
-  width: 20rem;
-  margin-bottom: 1rem;
-  position: relative;
 }
 
 .post-content > video {
@@ -518,10 +311,9 @@ main {
   margin-bottom: 0.7rem;
 }
 
-video::-webkit-media-controls-fullscreen-button,
-video::-webkit-media-controls-current-time-display,
-video::-webkit-media-controls-time-remaining-display {
-  display: none;
+/* ✅ Hide Scrollbar */
+.videos::-webkit-scrollbar {
+  width: 0px;
 }
 
 @media (max-width: 1000px) {
@@ -531,73 +323,54 @@ video::-webkit-media-controls-time-remaining-display {
   .search-bar {
     display: none;
   }
-
   .menu {
     z-index: 10;
   }
-
   .left {
     flex: 0.1;
     border: none;
     border-right: 1px solid rgb(200, 200, 200);
   }
-
   .left:hover {
     overflow: hidden;
   }
-
   .right {
     flex: 0.9;
   }
-
   .btns {
     margin: 0;
     align-items: center;
   }
-
   .btns > a > span {
     display: none;
   }
-
   .login {
     display: none;
   }
-
   .accounts {
     margin: 0;
     border: none;
     align-items: center;
   }
-
   .accounts > p {
     display: none;
   }
-
   .accounts > .user > h6 {
     display: none;
   }
-
   .user {
     padding-left: 0;
   }
-
   .tags {
     display: none;
   }
-
   .links {
     display: none;
   }
-
   .post-content > video {
     margin-left: 2rem;
   }
-
   .video-icons {
     left: 100%;
   }
-}
-
-.videos::-webkit-scrollbar {
-  width: 0px;
 }
