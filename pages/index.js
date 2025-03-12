@@ -1,5 +1,6 @@
 import Head from "next/head";
-import VideoFeed from "../components/VideoFeed"; // ✅ No Header import
+import VideoFeed from "../components/VideoFeed";
+import Header from "../components/Header"; // Add this import
 
 export default function Home() {
   return (
@@ -13,7 +14,10 @@ export default function Home() {
         />
       </Head>
 
-      {/* ✅ Ensure VideoFeed takes full screen */}
+      {/* Add the Header component here */}
+      <Header />
+
+      {/* VideoFeed takes full screen */}
       <VideoFeed />
     </div>
   );
