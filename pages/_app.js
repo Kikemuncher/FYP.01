@@ -3,39 +3,44 @@ import { useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    // This will run on the client-side after the page loads
-    // It attempts to find and hide any header elements
-    const hideHeaders = () => {
-      // Try to find headers by various selectors
-      const selectors = [
-        'div.fixed.top-0',
-        'div.bg-teal-700',
-        'div.w-full.flex.justify-center.z-50',
-        'header',
-        '.fixed:not(img)'
-      ];
-      
-      selectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-          if (el.tagName !== 'IMG') {
-            el.style.display = 'none';
-            el.style.opacity = '0';
-            el.style.visibility = 'hidden';
-            el.style.height = '0';
-            el.style.overflow = 'hidden';
-          }
-        });
+    // This runs after page load and directly manipulates the DOM
+    function removeHeader() {
+      // Target the exact header element we saw in your screenshot
+      const headers = document.querySelectorAll('header');
+      headers.forEach(header => {
+        if (header && header.classList.contains('fixed')) {
+          header.remove(); // Completely removes the element from DOM
+        }
       });
-    };
+      
+      // Also try to remove by direct class names
+      const tealElements = document.querySelectorAll('.bg-teal-700');
+      tealElements.forEach(el => {
+        if (el.tagName === 'HEADER' || el.classList.contains('fixed')) {
+          el.remove();
+        }
+      });
+    }
     
-    // Hide headers immediately and after a short delay (for any late-loading content)
-    hideHeaders();
-    setTimeout(hideHeaders, 100);
-    setTimeout(hideHeaders, 500);
+    // Run immediately and several times to catch any delayed rendering
+    removeHeader();
+    setTimeout(removeHeader, 100);
+    setTimeout(removeHeader, 500);
     
+    // Also set up an observer to catch dynamically added headers
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length) {
+          removeHeader();
+        }
+      }
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    return () => observer.disconnect();
   }, []);
-  
+
   return <Component {...pageProps} />;
 }
 
