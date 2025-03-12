@@ -13,7 +13,20 @@ export default function Home() {
 
       {/* Use the new LogoOnly component */}
       <LogoOnly />
-      
+      <div style={{
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  width: '100%',
+  background: 'red',
+  color: 'white',
+  padding: '5px',
+  zIndex: 9999,
+  fontSize: '12px'
+}}>
+  DEBUG: This appears at the top of index.js
+</div>
+
       {/* VideoFeed takes full screen */}
       <VideoFeed />
     </div>
