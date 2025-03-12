@@ -2,6 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* SUPER AGGRESSIVE HEADER REMOVAL - ADD AT TOP OF GLOBALS.CSS */
+body > div > div:first-child:not(.w-full.h-screen.overflow-hidden.flex.flex-col),
+div[class*="fixed"][class*="top-0"],
+div[class*="bg-teal"],
+div[class*="py-3"][class*="shadow"],
+div[class*="z-50"]:not(img),
+div.w-full.flex.justify-center:not(.relative),
+.fixed.top-0.left-0.w-full,
+body > header,
+div > header,
+#__next > div > div:first-child:not(.w-full.h-screen) {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* ADD THIS TOO! */
+/* Make sure our logo is visible */
+.fixed.top-4,
+img[src="/logo.png"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+
 /* ✅ Reset Styling */
 * {
   box-sizing: border-box;
