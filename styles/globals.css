@@ -383,3 +383,16 @@ main {
 header {
   display: none;
 }
+/* Add these MORE AGGRESSIVE RULES to your globals.css */
+.fixed.top-0,
+div[class*="bg-teal-700"],
+div[class*="py-3"].shadow-md,
+div.w-full.flex.justify-center.z-50 {
+  display: none !important;
+}
+
+/* Only allow specific logo element */
+img.fixed.top-4 {
+  display: block !important;
+  z-index: 999 !important;
+}
