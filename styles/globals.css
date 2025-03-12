@@ -374,3 +374,12 @@ main {
     left: 100%;
   }
 }
+/* Target the specific header container class */
+.fixed.top-0.left-0.w-full.flex.justify-center.z-50.bg-teal-700 {
+  display: none !important;
+}
+
+/* Keep your existing rule too */
+header {
+  display: none;
+}
