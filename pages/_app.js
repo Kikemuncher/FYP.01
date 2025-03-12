@@ -1,10 +1,7 @@
-import '../styles/globals.css'
+import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
-}
-body {
-  background-color: red !important;
+  return <Component {...pageProps} />;
 }
 
-export default MyApp
+export default MyApp;
